@@ -1,6 +1,5 @@
 # custom places to ignore
 *.sh
-main.py
 sqlpad/
 mock/
 mysql/
