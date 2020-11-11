@@ -9,7 +9,7 @@ the data schema consists of:
                     and dependence info of a set of each JSON
                     parameter that MUST be in the JSON
                     object
-- expected_keys: list of dicts describing the types & names
+- optional_keys: list of dicts describing the types & names
                  of each JSON parameter that may or may not
                  be in the JSON object
 # quickstart
