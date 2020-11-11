@@ -13,15 +13,15 @@ the data schema consists of:
                  of each JSON parameter that may or may not
                  be in the JSON object
 # quickstart
-1. clone repo
+clone repo
 ```
 git clone https://github.com/abmamo/validateJSON
 ```
-2. install package
+install package
 ```
 pip3 install /path/to/validateJSON
 ```
-3. define data schema (sample data schema below)
+define data schema (sample data schema below)
 ```
 # sample JSON data
 request_data = {
@@ -83,7 +83,7 @@ conditional = [
     }
 ]
 ```
-4. run validator
+run validator
 ```
 from validateJSON import JSONValidator
 # init validator
