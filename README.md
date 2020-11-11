@@ -1,4 +1,4 @@
-# validateJSON [![Actions Status](https://github.com/abmamo/validateJSON/workflows/build/badge.svg)](https://github.com/abmamo/validateJSON/actions)
+# validateJSON ![build](https://github.com/abmamo/validateJSON/workflows/build/badge.svg?branch=main)
 package to validate JSON data against a schema
 
 the data schema consists of:
