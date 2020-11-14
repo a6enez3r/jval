@@ -2,7 +2,7 @@
 from validateJSON import JSONValidator
 
 
-def test_validator_valid():
+def test_validator_invalid():
     # test data
     request_data_one = {
         "source_type": "local",
