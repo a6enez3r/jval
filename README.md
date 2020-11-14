@@ -5,62 +5,66 @@ the data schema consists of:
 - expected_keys: list of dicts describing the types & names
                  of each JSON parameter that MUST be in the
                  JSON object
-        # schema describing nested JSON file
-        expected_key_one =
-            {
-                "param_name": "store_info",
-                "param_type": dict,
-                "expected_keys": [
-                    {"param_name": "host", "param_type": str},
-                    {"param_name": "dbname", "param_type": str},
-                    {"param_name": "user", "param_type": str},
-                    {"param_name": "password", "param_type": str},
-                    {"param_name": "port", "param_type": int}
-                ]
-            }
-        # schema describing simple JSON file
-        expected_key_two =
-            {
-                "param_name": "source_type",
-                "param_type": str,
-                "possible_values": ["local", "azure_storage"]
-            }
-        # schema describing complex / nested JSON file
-        expected_key_three =
-            {
-                "param_name": "source_info",
-                "param_type": dict,
-                "conditional_keys": {
-                    "depends_on": "source_type",
-                    "dependence_info": {
-                        "local": {
-                            "expected_keys": [
-                                {"param_name": "file_path", "param_type": str}
-                            ],
-                            "optional_keys": [
-                                {"param_name": "dir_path", "param_type": str},
-                            ]
-                        },
-                        "azure_storage": {
-                            "expected_keys": [
-                                {"param_name": "connection_string", "param_type": str},
-                                {"param_name": "container_name", "param_type": str},
-                            ],
-                            "optional_keys": [
-                                {"param_name": "file_name", "param_type": str}
-                            ]
-                        }
-                    }
+```
+# schema describing nested JSON file
+expected_key_one =
+    {
+        "param_name": "store_info",
+        "param_type": dict,
+        "expected_keys": [
+            {"param_name": "host", "param_type": str},
+            {"param_name": "dbname", "param_type": str},
+            {"param_name": "user", "param_type": str},
+            {"param_name": "password", "param_type": str},
+            {"param_name": "port", "param_type": int}
+        ]
+    }
+# schema describing simple JSON file
+expected_key_two =
+    {
+        "param_name": "source_type",
+        "param_type": str,
+        "possible_values": ["local", "azure_storage"]
+    }
+# schema describing complex / nested JSON file
+expected_key_three =
+    {
+        "param_name": "source_info",
+        "param_type": dict,
+        "conditional_keys": {
+            "depends_on": "source_type",
+            "dependence_info": {
+                "local": {
+                    "expected_keys": [
+                        {"param_name": "file_path", "param_type": str}
+                    ],
+                    "optional_keys": [
+                        {"param_name": "dir_path", "param_type": str},
+                    ]
+                },
+                "azure_storage": {
+                    "expected_keys": [
+                        {"param_name": "connection_string", "param_type": str},
+                        {"param_name": "container_name", "param_type": str},
+                    ],
+                    "optional_keys": [
+                        {"param_name": "file_name", "param_type": str}
+                    ]
                 }
             }
+        }
+    }
+```
 - optional_keys: list of dicts describing the types & names
                  of each JSON parameter that may or may not
                  be in the JSON object
+```
         optional_key =
             {
                 "param_name": "source_type",
                 "param_type": str,
             }
+```
 # quickstart
 clone repo
 ```
