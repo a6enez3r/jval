@@ -112,7 +112,7 @@ def test_validator_valid():
         "source_info": {
             "file_name": "<file path here>",
             "container_name": "<some container name here>",
-            "connection_string": ""
+            "connection_string": "<some connection string here>"
         },
         "store_type": "pg",
         "store_info": {
@@ -123,11 +123,11 @@ def test_validator_valid():
             "port": 5432
         }
     }
-    request_data_two = request_data = {
+    request_data_two = {
         "source_type": "local",
         "source_info": {
             "file_path": "<file path here>",
-            "dir_path": "<some container name here>"
+            "dir_path": "<some dir path here>"
         },
         "store_type": "pg",
         "store_info": {
