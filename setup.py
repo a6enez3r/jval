@@ -8,8 +8,8 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
       name='validateJSON',
-      version='0.0.2',
-      description='recursively validate a given JSON object contains expected keys & types',
+      version='0.0.3',
+      description='recursively validate a given JSON object against a schema',
       long_description=long_description,
       long_description_content_type='text/markdown',
       url='http://github.com/abmamo/validateJSON',
