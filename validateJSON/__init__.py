@@ -18,14 +18,64 @@ class JSONValidator:
                             and dependence info of a set of each JSON
                             parameter that MUST be in the JSON
                             object
-        - expected_keys: list of dicts describing the types & names
+        - optional_keys: list of dicts describing the types & names
                          of each JSON parameter that may or may not
-                         be in the JSON object
+                         be in the JSON object (only checked for types)
     """
     def validate_expected(self, json_object, expected_keys):
         """
-            recursively check a list of parameters are in a
-            given JSON object and have the right type
+            recursively checks to see if a list of parameters are in a
+            given JSON object and have the right type. list of
+            parameters are dict objects of the form :-
+
+            # nested
+            expected_key_one =
+                {
+                    "param_name": "store_info",
+                    "param_type": dict,
+                    "expected_keys": [
+                        {"param_name": "host", "param_type": str},
+                        {"param_name": "dbname", "param_type": str},
+                        {"param_name": "user", "param_type": str},
+                        {"param_name": "password", "param_type": str},
+                        {"param_name": "port", "param_type": int}
+                    ]
+                }
+            # simple
+            expected_key_two =
+                {
+                    "param_name": "source_type",
+                    "param_type": str,
+                    "possible_values": ["local", "azure_storage"]
+                }
+            # conditional
+            expected_key_three =
+                {
+                    "param_name": "source_info",
+                    "param_type": dict,
+                    "conditional_keys": {
+                        "depends_on": "source_type",
+                        "dependence_info": {
+                            "local": {
+                                "expected_keys": [
+                                    {"param_name": "file_path", "param_type": str}
+                                ],
+                                "optional_keys": [
+                                    {"param_name": "dir_path", "param_type": str},
+                                ]
+                            },
+                            "azure_storage": {
+                                "expected_keys": [
+                                    {"param_name": "connection_string", "param_type": str},
+                                    {"param_name": "container_name", "param_type": str},
+                                ],
+                                "optional_keys": [
+                                    {"param_name": "file_name", "param_type": str}
+                                ]
+                            }
+                        }
+                    }
+                }
 
             params:
                 - json_object: JSON object being validated
@@ -35,12 +85,11 @@ class JSONValidator:
         """
         # validate all expected parameters are in JSON object
         contains_params = [
-            # for each param
+            # expected key in json for each expected key
             parameter in json_object for parameter in
-            # check if in expected
             [expected_key["param_name"] for expected_key in expected_keys]
         ]
-        # if there is any missing expected parameters
+        # if there are any missing expected parameters
         if not all(contains_params):
             # log
             logger.error("missing expected parameter")
@@ -71,15 +120,15 @@ class JSONValidator:
                 # for each expected parameter
                 for expected_key in expected_keys:
                     # possible values validation here
+                    # (similar to ENUM in SQL)
                     if "possible_values" in expected_key:
-                        # assert val in JSON is one of these enumerated
-                        # values
+                        # if val in JSON is one of possible vals
                         if json_object[expected_key["param_name"]] not in expected_key["possible_values"]:
                             # log
                             logger.error("incorrect expected parameter value")
                             # return False (invalid JSON object)
                             return False
-                    # if expected key type is dict
+                    # if expected key type is dict (nested JSON)
                     if expected_key["param_type"] == dict:
                         # if expected keys specified in schema for nested dict
                         if "expected_keys" in expected_key:
@@ -93,12 +142,12 @@ class JSONValidator:
                             ):
                                 return False
                         if "conditional_keys" in expected_key:
-                            # get value conditional keys depend on
+                            # get the value the conditional keys depend on
                             depends_on_val = json_object[expected_key["conditional_keys"]["depends_on"]]
-                            # get nested depdendence
+                            # get depdendence info (i.e. based on the above value
+                            # get what the expected / optional keys are)
                             nested_optional_keys = expected_key["conditional_keys"]["dependence_info"][depends_on_val]["optional_keys"]
                             nested_expected_keys = expected_key["conditional_keys"]["dependence_info"][depends_on_val]["expected_keys"]
-                            print(json_object[expected_key["param_name"]])
                             # recursively run optional & expected validation
                             return self.validate(
                                 json_object[expected_key["param_name"]],
@@ -111,7 +160,14 @@ class JSONValidator:
     def validate_optional(self, json_object, optional_keys):
         """
             recursively check the types of a given set of
-            parameters if they exist in a given JSON object
+            parameters if they exist in a given JSON object.
+            list of parameters are dict objects of the form :-
+
+            optional_key =
+                {
+                    "param_name": "source_type",
+                    "param_type": str,
+                }
 
             params:
                 - json_object: JSON object being validated
@@ -164,7 +220,6 @@ class JSONValidator:
         else:
             # get names of valid parameters
             valid_keys = [expected_key["param_name"] for expected_key in expected_keys]
-        
         # check if any parameter present in json object that is not in valid_keys
         contains_valid = [
             # for each param in json object
@@ -176,7 +231,6 @@ class JSONValidator:
             logger.error("invalid parameter detected")
             # return False (invalid JSON object)
             return False
-        # check if any key in json object is not 
         # run expected validation
         if self.validate_expected(json_object, expected_keys):
             # if optional parameters are specified
@@ -191,6 +245,6 @@ class JSONValidator:
             # no optional keys specified return
             else:
                 return True
-        # validation failed (missing expected parameter or invalid type)
+        # validation failure
         else:
             return False
