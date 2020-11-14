@@ -35,80 +35,78 @@ class JSONValidator:
         """
         # validate all expected parameters are in JSON object
         contains_params = [
+            # for each param
             parameter in json_object for parameter in
+            # check if in expected
             [expected_key["param_name"] for expected_key in expected_keys]
         ]
-        # if there is any missing parameter
+        # if there is any missing expected parameters
         if not all(contains_params):
             # log
             logger.error("missing expected parameter")
             # return False (invalid JSON object)
             return False
+        # if there are no missing expected parameters
         else:
-            # validate all expected parameters have correct type
+            # validate expected parameters' types
             correct_types = [
+                # compare types
                 isinstance(
                     # get value from json object
                     json_object[expected_key["param_name"]],
                     # get expected type from schema
                     expected_key["param_type"]
                 )
+                # for each expected param
                 for expected_key in expected_keys
             ]
-            # if there is any incorrect type
+            # if there are any expected parameters with an incorrect type
             if not all(correct_types):
                 # log
                 logger.error("incorrect expected parameter type")
                 # return False (invalid JSON object)
                 return False
+            # if there are no parameters with incorrect types
             else:
                 # for each expected parameter
                 for expected_key in expected_keys:
+                    # possible values validation here
+                    if "possible_values" in expected_key:
+                        # assert val in JSON is one of these enumerated
+                        # values
+                        if json_object[expected_key["param_name"]] not in expected_key["possible_values"]:
+                            # log
+                            logger.error("incorrect expected parameter value")
+                            # return False (invalid JSON object)
+                            return False
                     # if expected key type is dict
                     if expected_key["param_type"] == dict:
                         # if expected keys specified in schema for nested dict
                         if "expected_keys" in expected_key:
                             # recursively run above logic on any nested
                             # JSON object (i.e. any params of type dict)
-                            return self.validate_expected(
+                            if not self.validate_expected(
                                 # get value of dict from JSON object
                                 json_object[expected_key["param_name"]],
                                 # get expected keys from schema
                                 expected_key["expected_keys"]
+                            ):
+                                return False
+                        if "conditional_keys" in expected_key:
+                            # get value conditional keys depend on
+                            depends_on_val = json_object[expected_key["conditional_keys"]["depends_on"]]
+                            # get nested depdendence
+                            nested_optional_keys = expected_key["conditional_keys"]["dependence_info"][depends_on_val]["optional_keys"]
+                            nested_expected_keys = expected_key["conditional_keys"]["dependence_info"][depends_on_val]["expected_keys"]
+                            print(json_object[expected_key["param_name"]])
+                            # recursively run optional & expected validation
+                            return self.validate(
+                                json_object[expected_key["param_name"]],
+                                nested_expected_keys,
+                                nested_optional_keys
                             )
                 # return True (valid JSON object)
                 return True
-
-    def validate_conditional(self, json_object, conditional_keys):
-        """
-            check if a given JSON object contains a set of keys
-            conditionally based on another value in the same JSON
-            object
-
-            params:
-                - json_object: JSON object being validated
-                - conditional_keys: list of dicts describing JSON object
-                                    parameter conditional relations
-            returns
-                - True or False
-        """
-        # if conditional keys specified
-        if conditional_keys is not None:
-            # iterate through all conditional keys
-            for conditional_key in conditional_keys:
-                # get the value/param it depends on from the json object
-                independent_value = json_object[conditional_key["depends_on"]]
-                # get expected schema for the dependent param
-                # based on the value of the independent param
-                conditional_expected = conditional_key["depdendence_info"][independent_value]
-                # run validation
-                return self.validate_expected(
-                    # pass json object unchanged
-                    json_object=json_object,
-                    # pass schema derived based on
-                    # independent param
-                    expected_keys=conditional_expected
-                )
 
     def validate_optional(self, json_object, optional_keys):
         """
@@ -150,33 +148,49 @@ class JSONValidator:
                         )
         return True
 
-    def validate(self, json_object, expected_keys, conditional_keys, optional_keys=None):
+    def validate(self, json_object, expected_keys, optional_keys=None):
         """
             check if a given JSON object
             - contains a given set of keys with given types
             - contains conditional parameters whose value & type is
-              determined by expected keys
+            determined by expected keys
             - contains optional parameters with given types
         """
+        # get name of valid keys from schema (expected + optional)
+        if optional_keys is not None:
+            # get names of valid parameters
+            valid_keys = [expected_key["param_name"] for expected_key in expected_keys] + [optional_key["param_name"] for optional_key in optional_keys]
+        # no optional parameters specified
+        else:
+            # get names of valid parameters
+            valid_keys = [expected_key["param_name"] for expected_key in expected_keys]
+        
+        # check if any parameter present in json object that is not in valid_keys
+        contains_valid = [
+            # for each param in json object
+            parameter in valid_keys for parameter in json_object
+        ]
+        # if any invalid parameter detected
+        if not all(contains_valid):
+            # log
+            logger.error("invalid parameter detected")
+            # return False (invalid JSON object)
+            return False
+        # check if any key in json object is not 
         # run expected validation
         if self.validate_expected(json_object, expected_keys):
-            # run conditional validation
-            if self.validate_conditional(json_object, conditional_keys):
-                # if optional parameters are specified
-                if optional_keys is not None:
-                    # run optional validation
-                    if self.validate_optional(json_object, optional_keys):
-                        # return success
-                        return True
-                    else:
-                        # return failure
-                        return False
-                # no optional keys specified return
-                else:
+            # if optional parameters are specified
+            if optional_keys is not None:
+                # run optional validation
+                if self.validate_optional(json_object, optional_keys):
+                    # return success
                     return True
-            # validation failed (missing expected parameter or invalid type)
+                else:
+                    # return failure
+                    return False
+            # no optional keys specified return
             else:
-                return False
+                return True
         # validation failed (missing expected parameter or invalid type)
         else:
             return False
