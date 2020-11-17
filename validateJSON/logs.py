@@ -1,58 +1,69 @@
-import os, pathlib
-# logging
+# os
+import os
+import pathlib
+# logging config
 import logging.config
 
 
-def setup_logging(logger, std_level=logging.INFO, info_level=logging.INFO, error_level=logging.ERROR):
+def setup_logging(
+        logger,
+        std_level=logging.INFO,
+        info_level=logging.INFO,
+        error_level=logging.ERROR):
     """
-        setup logging configuration. add formatter and 3 handlers
-        (std out, info file, error file)
+        configure logger
 
         params:
-            - logger: python logger object
-            - std_level: std out logging level
-            - info_level: info file logging level
-            - error_level: error file logging level
+            - logger: logging.Logger object
+            - std_level: logging level for std out
+            - info_level: logging level for info.log
+            - error_level: logging level for error.log
         returns:
-            configured logger
+            - logger: fully configured logger object with
+                      multiple handlers & uniform formatter
     """
-    # get dir path
+    # get the current file's directory
     current_path = pathlib.Path(__file__).parent.absolute()
     # define formatter
     formatter = logging.Formatter(
-        "[%(asctime)s] - %(name)-25s %(levelname)-10s %(funcName)s:%(lineno)-18s   %(message)s"
+        "[%(asctime)s] - [%(name)s] - [%(levelname)s] - [%(funcName)s:%(lineno)s] - [%(message)s]"
     )
     # define stream handler
     std_handler = logging.StreamHandler()
     # add formatter to stream handler
     std_handler.setFormatter(formatter)
-    # set level
+    # set stream handler logging level
     std_handler.setLevel(std_level)
-    # add handler
+    # add stream handler to logger
     logger.addHandler(std_handler)
-    # define file info handler
+    # define file handler (logging level INFO)
     file_info_handler = logging.handlers.RotatingFileHandler(
+        # log file location
         os.path.join(current_path, "info.log"),
+        # max file size
         maxBytes=1000000,
+        # num backups
         backupCount=1
     )
-    # set level
+    # set file handler logging level
     file_info_handler.setLevel(info_level)
-    # set formatter
+    # set file handler formatter
     file_info_handler.setFormatter(formatter)
-    # add handler
-    logger.addHandler(file_info_handler)
-    # define file error handler
+    # define file handler (logging level ERROR)
     file_error_handler = logging.handlers.RotatingFileHandler(
+        # log file location
         os.path.join(current_path, "error.log"),
+        # max file size
         maxBytes=1000000,
+        # num backups
         backupCount=1
     )
-    # set level
+    # set file handler logging level
     file_error_handler.setLevel(error_level)
-    # set formatter
+    # set file handler formatter
     file_error_handler.setFormatter(formatter)
-    # add handler to logger
+    # add both file handlers to logger
+    logger.addHandler(file_info_handler)
     logger.addHandler(file_error_handler)
-    # return logger
+    # return configured logger
     return logger
