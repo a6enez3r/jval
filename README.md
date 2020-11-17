@@ -119,7 +119,7 @@ validated = v.validate(
 ```
 if validated is True JSON data matches schema. 
 
-By default logging level is set to `ERROR` to change this and see details on which parameters failed you can do:
+by default logging level is set to `ERROR` to change this and see details on which parameters failed you can set up logger as:
 ```
 import logging
 from validateJSON import logger as validator_logger
@@ -142,34 +142,35 @@ a data schema is made up of expected_keys (describing each parameter the JSON ob
 
 ### keys
 are python dicts which contain info about parameters of a JSON object.
+```
+required_params:
+    param_name: name of parameter
+    param_type: type of parameter
 
-    required_params:
-        param_name: name of parameter
-        param_type: type of parameter
-
-    optional_params:
-        possible_values: values a parameter can be
-        expected_keys: nested expected parameters
-        conditional_keys: parameters whose names and values depend on another parameter
+optional_params:
+    possible_values: values a parameter can be
+    expected_keys: nested expected parameters
+    conditional_keys: parameters whose names and values depend on another parameter
+```
 
 #### expected keys 
 is a list of keys (which are python dict objects defined by the parameters above) describing the required parameters of a JSON object
 ```
-    # simple key w/ to limit values of a parameter
-    simple_key_one =
+# simple key w/ to limit values of a parameter
+simple_key_one =
     {
         "param_name": "source_type",
         "param_type": str,
         "possible_values": ["local", "azure_storage"]
     }
-    # simple key to check type
-    simple_key_two =
+# simple key to check type
+simple_key_two =
     {
         "param_name": "source_type",
         "param_type": str
     }
-    # nested key to validate nested JSON
-    nested_key =
+# nested key to validate nested JSON
+nested_key =
     {
         "param_name": "store_info",
         "param_type": dict,
@@ -181,8 +182,8 @@ is a list of keys (which are python dict objects defined by the parameters above
             {"param_name": "port", "param_type": int}
         ]
     }
-    # conditional key
-    conditional_key =
+# conditional key
+conditional_key =
     {
         "param_name": "source_info",
         "param_type": dict,
