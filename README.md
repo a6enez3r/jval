@@ -1,70 +1,6 @@
 # validateJSON ![build](https://github.com/abmamo/validateJSON/workflows/build/badge.svg?branch=main)
 package to validate JSON data against a schema
 
-the data schema consists of:
-- expected_keys: list of dicts describing the types & names
-                 of each JSON parameter that MUST be in the
-                 JSON object
-```
-# schema describing nested JSON file
-expected_key_one =
-    {
-        "param_name": "store_info",
-        "param_type": dict,
-        "expected_keys": [
-            {"param_name": "host", "param_type": str},
-            {"param_name": "dbname", "param_type": str},
-            {"param_name": "user", "param_type": str},
-            {"param_name": "password", "param_type": str},
-            {"param_name": "port", "param_type": int}
-        ]
-    }
-# schema describing simple JSON file
-expected_key_two =
-    {
-        "param_name": "source_type",
-        "param_type": str,
-        "possible_values": ["local", "azure_storage"]
-    }
-# schema describing complex / nested JSON file
-expected_key_three =
-    {
-        "param_name": "source_info",
-        "param_type": dict,
-        "conditional_keys": {
-            "depends_on": "source_type",
-            "dependence_info": {
-                "local": {
-                    "expected_keys": [
-                        {"param_name": "file_path", "param_type": str}
-                    ],
-                    "optional_keys": [
-                        {"param_name": "dir_path", "param_type": str},
-                    ]
-                },
-                "azure_storage": {
-                    "expected_keys": [
-                        {"param_name": "connection_string", "param_type": str},
-                        {"param_name": "container_name", "param_type": str},
-                    ],
-                    "optional_keys": [
-                        {"param_name": "file_name", "param_type": str}
-                    ]
-                }
-            }
-        }
-    }
-```
-- optional_keys: list of dicts describing the types & names
-                 of each JSON parameter that may or may not
-                 be in the JSON object
-```
-        optional_key =
-            {
-                "param_name": "source_type",
-                "param_type": str,
-            }
-```
 # quickstart
 clone repo
 ```
@@ -164,4 +100,95 @@ validated = v.validate(
     expected_keys=expected,
     optional_keys=optional
 )
+```
+# validation
+
+validate JSON data against a data schema. a data schema is made
+up of expected_keys (describing each parameter the JSON object must have) 
+& optional_keys (describing parameters that may or may not be in JSON object) 
+
+expected keys: is a list of keys (which are python dict objects)
+               describing the required parameters of a JSON object
+
+               keys: are python dicts which contain info about
+                     parameters of a JSON object
+
+                     required_params:
+                        "param_name": name of parameter
+                        "param_type": type of parameter
+                     
+                     optional_params:
+                        "possible_values": values a parameter can be
+                        "expected_keys": nested expected parameters
+                        "conditional_keys": parameters whose names and
+                                            values depend on another parameter
+
+```
+# simple
+simple_key_one =
+{
+    "param_name": "source_type",
+    "param_type": str,
+    "possible_values": ["local", "azure_storage"]
+}
+simple_key_two =
+{
+    "param_name": "source_type",
+    "param_type": str
+}
+# nested
+nested_key =
+{
+    "param_name": "store_info",
+    "param_type": dict,
+    "expected_keys": [
+        {"param_name": "host", "param_type": str},
+        {"param_name": "dbname", "param_type": str},
+        {"param_name": "user", "param_type": str},
+        {"param_name": "password", "param_type": str},
+        {"param_name": "port", "param_type": int}
+    ]
+}
+# conditional
+conditional_key =
+{
+    "param_name": "source_info",
+    "param_type": dict,
+    "conditional_keys": {
+        "depends_on": "source_type",
+        "dependence_info": {
+            # value of depends_on
+            "local": {
+                # expected keys based on that value
+                "expected_keys": [
+                    {"param_name": "file_path", "param_type": str}
+                ],
+                # optional keys based on that value
+                "optional_keys": [
+                    {"param_name": "dir_path", "param_type": str},
+                ]
+            },
+            "azure_storage": {
+                "expected_keys": [
+                    {"param_name": "connection_string", "param_type": str},
+                    {"param_name": "container_name", "param_type": str},
+                ],
+                "optional_keys": [
+                    {"param_name": "file_name", "param_type": str}
+                ]
+            }
+        }
+    }
+}
+```
+- optional_keys: list of dicts describing the types & names
+                    of each JSON parameter that may or may not
+                    be in the JSON object (only checked for types)
+```
+# simple
+simple_key_one =
+{
+    "param_name": "source_type",
+    "param_type": str
+}
 ```
