@@ -1,9 +1,19 @@
+### logging config ###
 # logging
 import logging
-# set up logging before importing sub modules
-from validateJSON.logs import setup_logging
-# configure logging
-logger = setup_logging(logging.getLogger(__name__))
+# os / path
+import os
+from os import path
+# config from .cfg file
+from logging.config import fileConfig
+# log dir (same as wherever this file is)
+log_dir = path.dirname(path.abspath(__file__))
+# get logging config path (same dir as this file)
+logging_config_path = path.join(log_dir, 'logging.cfg')
+# configure logging from file
+fileConfig(logging_config_path)
+# create module logger
+logger = logging.getLogger('validateJSON')
 
 
 class JSONValidator:
@@ -249,7 +259,78 @@ class JSONValidator:
                         )
         return True
 
-    def validate(self, json_object, expected_keys, optional_keys=None):
+    def contains_invalid_keys(self, json_object, valid_keys):
+        """
+            check if all the keys in a JSON object are valid keys
+            valid keys are comprised of expected + optional
+
+            params:
+                - json_object: JSON object being validated
+                - valid_keys: name of allowed parameters
+            returns:
+                - bool True or False (if it contains invalid param name)
+        """
+        # check if any parameter present in JSON object is not in valid_keys (i.e. check
+        # it is allowed)
+        contains_only_valid = [
+            # for each param in json object
+            parameter in valid_keys for parameter in json_object
+        ]
+        # if any invalid parameter detected
+        if not all(contains_only_valid):
+            # get names of invalid parameters
+            invalid_keys = [
+                # name of key
+                invalid_key for
+                invalid_key, is_valid in
+                zip(list(json_object.keys()), contains_only_valid)
+                # if it is not valid / not in expected_keys or optional_keys
+                if not is_valid
+            ]
+            # log
+            logger.error("invalid: %s" % invalid_keys)
+            # return False (invalid JSON object)
+            return True
+        # no invalid parameter detected
+        else:
+            return False
+    
+    def build_valid_keys(self, expected_keys=None, optional_keys=None):
+        """
+            build valid list of keys from expected + optional keys
+
+            params:
+                - expected_keys :- is a list of keys which are python dict objects
+                                   describing the required parameters of a JSON object
+
+                - optiona_keys :- list of dicts describing the types & names
+                                  of each JSON parameter that may or may not
+                                  be in the JSON object
+        """
+        # if expected keys specified
+        if expected_keys is not None:
+            # and optional keys specified
+            if optional_keys is not None:
+                # valid keys = expected keys + optional keys
+                valid_keys = [expected_key["param_name"] for expected_key in expected_keys] + \
+                             [optional_key["param_name"] for optional_key in optional_keys]
+            # no optional keys specified
+            else:
+                # valid_keys = expected_keys
+                valid_keys = [expected_key["param_name"] for expected_key in expected_keys]
+        else:
+            # no optional or expected keys specified
+            if optional_keys is None:
+                # valid keys = empty list 
+                valid_keys = []
+            # no expected key but optional keys specified
+            else:
+                # valid keys = optional keys
+                valid_keys = [optional_key["param_name"] for optional_key in optional_keys]
+        # return list of valid keys
+        return valid_keys
+
+    def validate(self, json_object, expected_keys=None, optional_keys=None):
         """
             validate JSON object against a schema
 
@@ -261,50 +342,40 @@ class JSONValidator:
                                   of each JSON parameter that may or may not
                                   be in the JSON object
         """
-        # create list of expected + optional keys to check if
-        # any unnecessary parameters passed in JSON object
-        if optional_keys is not None:
-            # valid_keys = expected_keys + optional_keys
-            valid_keys = [expected_key["param_name"] for expected_key in expected_keys] + [optional_key["param_name"] for optional_key in optional_keys]
-        # no optional parameters specified
-        else:
-            # valid_keys = expected_keys
-            valid_keys = [expected_key["param_name"] for expected_key in expected_keys]
+        # generate expected / allowed keys
+        valid_keys = self.build_valid_keys(
+            expected_keys=expected_keys, optional_keys=optional_keys
+        )
+        # if no validation keys specified (no expected or optional found)
+        if len(valid_keys) == 0:
+            # log
+            logger.error("no optional or expected specified")
+            # return 
+            return False
         # check if any parameter present in JSON object is not in valid_keys (i.e. check
         # it is allowed)
-        contains_valid = [
-            # for each param in json object
-            parameter in valid_keys for parameter in json_object
-        ]
-        # if any invalid parameter detected
-        if not all(contains_valid):
-            # get names of invalid parameters
-            invalid_keys = [
-                # name of key
-                invalid_key for
-                invalid_key, is_valid in
-                zip(list(json_object.keys()), contains_valid)
-                # if it is not valid / not in expected_keys or optional_keys
-                if not is_valid
-            ]
-            # log
-            logger.error("invalid: %s" % invalid_keys)
-            # return False (invalid JSON object)
+        if self.contains_invalid_keys(
+            json_object=json_object, valid_keys=valid_keys
+        ):
+            # return
             return False
-        # run expected validation
-        if self.validate_expected(json_object, expected_keys):
-            # if optional parameters are specified
+        # run schema validation
+        # expected keys present
+        if expected_keys is not None:
+            # optional keys present
             if optional_keys is not None:
-                # run optional validation
-                if self.validate_optional(json_object, optional_keys):
-                    # return success
-                    return True
-                else:
-                    # return failure (optional failed)
-                    return False
-            # no optional keys specified return
+                # run validation
+                return self.validate_optional(json_object, optional_keys) and self.validate_expected(json_object, expected_keys)
             else:
-                return True
-        # validation failure (expected failed)
+                # run validation
+                return self.validate_expected(json_object, expected_keys)
         else:
-            return False
+            # optional keys present
+            if optional_keys is not None:
+                # run optional validation validation
+                return self.validate_optional(json_object, optional_keys)
+            else:
+                # log
+                logger.error("no optional or expected specified")
+                # return 
+                return False
