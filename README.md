@@ -2,13 +2,13 @@
 package to validate JSON data against a schema
 
 # quickstart
-clone repo
+create virtualenv
 ```
-git clone https://github.com/abmamo/validateJSON
+  python3 -m venv env && source env/bin/activate && pip3 install --upgrade pip
 ```
-install package
+install mock
 ```
-pip3 install /path/to/validateJSON
+  pip3 install mock @ https://github.com/abmamo/validateJSON/archive/v0.0.1.tar.gz
 ```
 sample JSON data
 ```
