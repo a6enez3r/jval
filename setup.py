@@ -20,10 +20,5 @@ setup(
       author_email='contact@abmamo.com',
       license='MIT',
       packages=find_packages(exclude=("tests",)),
-      package_data={
-          "validateJSON": [
-            "logging.cfg"
-          ]
-      },
       zip_safe=False
 )
