@@ -1,4 +1,4 @@
-# validateJSON ![test](https://github.com/abmamo/validateJSON/workflows/test/badge.svg?branch=main)
+# validate_json ![test](https://github.com/abmamo/validate_json/workflows/test/badge.svg?branch=main)
 package to validate JSON data against a schema
 
 # quickstart
@@ -6,9 +6,9 @@ create virtualenv
 ```
   python3 -m venv env && source env/bin/activate && pip3 install --upgrade pip
 ```
-install mock
+install validate_json
 ```
-  pip3 install mock @ https://github.com/abmamo/validateJSON/archive/v0.0.1.tar.gz
+  pip3 install validate_json @ https://github.com/abmamo/validate_json/archive/v0.0.1.tar.gz
 ```
 sample JSON data
 ```
@@ -107,7 +107,7 @@ optional = [
 ```
 run validator
 ```
-from validateJSON import JSONValidator
+from validate_json import JSONValidator
 # init validator
 v = JSONValidator()
 # pass JSON & data schema to validator
@@ -122,9 +122,9 @@ if validated is True JSON data matches schema.
 by default logging level is set to `ERROR` to change this and see details on which parameters failed you can set up logger as:
 ```
 import logging
-from validateJSON import logger as validator_logger
+from validate_json import logger as validator_logger
 validator_logger.setLevel(logging.INFO)
-from validateJSON import JSONValidator
+from validate_json import JSONValidator
 # init validator
 v = JSONValidator()
 # pass JSON & data schema to validator

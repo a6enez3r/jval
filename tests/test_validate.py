@@ -1,7 +1,7 @@
 # testing
 import pytest
 # validator & its logger
-from validateJSON import JSONValidator
+from validate_json import JSONValidator
 
 @pytest.fixture(scope="module")
 def test_request_data():
