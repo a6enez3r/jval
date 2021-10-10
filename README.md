@@ -1,4 +1,4 @@
-# validate_json ![test](https://github.com/abmamo/validate_json/workflows/test/badge.svg?branch=main)
+# jval ![test](https://github.com/abmamo/jval/workflows/test/badge.svg?branch=main)
 package to validate JSON data against a schema
 
 # quickstart
@@ -6,9 +6,9 @@ create virtualenv
 ```
   python3 -m venv env && source env/bin/activate && pip3 install --upgrade pip
 ```
-install validate_json
+install jval
 ```
-  pip3 install validate_json @ https://github.com/abmamo/validate_json/archive/v0.0.1.tar.gz
+  pip3 install jval @ https://github.com/abmamo/jval/archive/v0.0.1.tar.gz
 ```
 sample JSON data
 ```
@@ -46,7 +46,7 @@ expected = [
         "param_name": "store_info",
         "param_type": dict,
         # nested expected parameters
-        "expected_keys": [
+        "expected": [
             {"param_name": "host", "param_type": str},
             {"param_name": "dbname", "param_type": str},
             {"param_name": "user", "param_type": str},
@@ -71,23 +71,23 @@ expected = [
                 # if value of "source_type" is local
                 "local": {
                     # we expect dir_path to be in JSON object
-                    "expected_keys": [
+                    "expected": [
                         {"param_name": "dir_path", "param_type": str}
                     ],
                     # file_name may or may not be in JSON object
-                    "optional_keys": [
+                    "optional": [
                         {"param_name": "file_name", "param_type": str},
                     ]
                 },
                 # if value of "source_type" is azure_storage
                 "azure_storage": {
                     # we expect connection_string & container_name to be in JSON object
-                    "expected_keys": [
+                    "expected": [
                         {"param_name": "connection_string", "param_type": str},
                         {"param_name": "container_name", "param_type": str},
                     ],
                     # file_name may or may not be in JSON object
-                    "optional_keys": [
+                    "optional": [
                         {"param_name": "file_name", "param_type": str}
                     ]
                 }
@@ -107,14 +107,14 @@ optional = [
 ```
 run validator
 ```
-from validate_json import JSONValidator
+from jval import JVal
 # init validator
-v = JSONValidator()
+v = JVal()
 # pass JSON & data schema to validator
 validated = v.validate(
     json_object=request_data,
-    expected_keys=expected,
-    optional_keys=optional
+    expected=expected,
+    optional=optional
 )
 ```
 if validated is True JSON data matches schema. 
@@ -122,23 +122,23 @@ if validated is True JSON data matches schema.
 by default logging level is set to `ERROR` to change this and see details on which parameters failed you can set up logger as:
 ```
 import logging
-from validate_json import logger as validator_logger
+from jval import logger as validator_logger
 validator_logger.setLevel(logging.INFO)
-from validate_json import JSONValidator
+from jval import JVal
 # init validator
-v = JSONValidator()
+v = JVal()
 # pass JSON & data schema to validator
 validated = v.validate(
     json_object=request_data,
-    expected_keys=expected,
-    optional_keys=optional
+    expected=expected,
+    optional=optional
 )
 ```
-before importing JSONValidator
+before importing JVal
 
 # data schema
-a data schema is made up of expected_keys (describing each parameter the JSON object must have) 
-& optional_keys (describing parameters that may or may not be in JSON object) 
+a data schema is made up of expected (describing each parameter the JSON object must have) 
+& optional (describing parameters that may or may not be in JSON object) 
 
 ### keys
 are python dicts which contain info about parameters of a JSON object.
@@ -149,7 +149,7 @@ required_params:
 
 optional_params:
     possible_values: values a parameter can be
-    expected_keys: nested expected parameters
+    expected: nested expected parameters
     conditional_keys: parameters whose names and values depend on another parameter
 ```
 
@@ -174,7 +174,7 @@ nested_key =
     {
         "param_name": "store_info",
         "param_type": dict,
-        "expected_keys": [
+        "expected": [
             {"param_name": "host", "param_type": str},
             {"param_name": "dbname", "param_type": str},
             {"param_name": "user", "param_type": str},
@@ -193,20 +193,20 @@ conditional_key =
                 # value of depends_on
                 "local": {
                     # expected keys based on that value
-                    "expected_keys": [
+                    "expected": [
                         {"param_name": "file_path", "param_type": str}
                     ],
                     # optional keys based on that value
-                    "optional_keys": [
+                    "optional": [
                         {"param_name": "dir_path", "param_type": str},
                     ]
                 },
                 "azure_storage": {
-                    "expected_keys": [
+                    "expected": [
                         {"param_name": "connection_string", "param_type": str},
                         {"param_name": "container_name", "param_type": str},
                     ],
-                    "optional_keys": [
+                    "optional": [
                         {"param_name": "file_name", "param_type": str}
                     ]
                 }
@@ -214,7 +214,7 @@ conditional_key =
         }
     }
 ```
-#### optional_keys 
+#### optional 
 list of dicts describing the types & names of each JSON parameter that may or may not be in the JSON object (only checked for types)
 ```
 # simple
