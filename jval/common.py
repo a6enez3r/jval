@@ -1,5 +1,15 @@
 """
-    config.py: contains logging configuration dict
+    module-wide / shared constants
+
+    ***
+
+    attributes
+
+    ***
+
+    *LOGGING_CFG*: logging configuration dictionary
+
+    ***
 """
 LOGGING_DICT = {
     "version": 1,

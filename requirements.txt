@@ -1,6 +1,5 @@
-# testing
 pytest==6.2.5
-pytest-cov==3.0.0
-# linting
-black==21.9b0
+pytest-cov==2.12.1
 pylint==2.11.1
+black==21.9b0
+pdoc==8.0.0
