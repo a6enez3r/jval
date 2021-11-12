@@ -13,6 +13,19 @@ ifeq ($(BRANCH_NAME),)
 BRANCH_NAME := main
 endif
 
+help:
+	@echo "list of available commands"
+	@echo
+	@echo "save               	- save changes locally using git"
+	@echo "save-remote          	- save changes to remote using git"
+	@echo "release          	- release current version (just tags master with current version & pushes to master)"
+	@echo "test           		- run tests using pytest"
+	@echo "format             	- format code using black"
+	@echo "lint           		- lint code using pylint"
+	@echo "prettify             	- run linting + formatting"
+	@echo "docs-build       	- build docs using pdoc"
+	@echo "docs-serve       	- serve docs using pdoc"
+
 save:
 	@echo "saving..." && git add . && git commit -m "${COMMIT_MESSAGE}"
 
