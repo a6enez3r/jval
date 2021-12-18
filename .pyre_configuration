@@ -1,0 +1,9 @@
+{
+  "source_directories": [
+    {
+      "import_root": ".",
+      "source": "jval"
+    }
+  ],
+  "taint_models_path": "/usr/local/lib"
+}
