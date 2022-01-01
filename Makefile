@@ -1,5 +1,5 @@
-pn := flask_rl
-mn := flask_rl
+pn := jval
+mn := jval
 tn := tests
 
 ifeq ($(version),)
