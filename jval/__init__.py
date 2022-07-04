@@ -257,7 +257,7 @@ class JVal:
                         )
         return True
 
-    def _contains_invalid(self, jobj, valid):  # pylint: disable=no-self-use
+    def _contains_invalid(self, jobj, valid):
         """
         check if all the keys in a JSON object are valid keys
 
@@ -283,7 +283,7 @@ class JVal:
             return invalid
         return []
 
-    def _build_valid(self, expected=None, optional=None):  # pylint: disable=no-self-use
+    def _build_valid(self, expected=None, optional=None):
         """
         build valid list of keys from expected + optional keys
 
