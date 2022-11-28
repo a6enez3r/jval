@@ -113,7 +113,11 @@ import json
 import logging
 from logging.config import dictConfig
 
+from jval import _version
 from jval.common import LOGGING_DICT
+
+__version__ = _version.get_versions()["version"]
+
 
 dictConfig(LOGGING_DICT)
 logger = logging.getLogger(__name__)
@@ -390,6 +394,3 @@ class JVal:
         with open(jpath, "rb") as jfile:
             jobj = json.loads(jfile)
             return self.validate(jobj, expected=expected, optional=optional)
-
-from . import _version
-__version__ = _version.get_versions()['version']
