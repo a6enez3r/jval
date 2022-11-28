@@ -1,0 +1,7 @@
+include README.md
+include LICENSE
+include requirements/production.txt
+graft jval
+recursive-exclude * *.py[co]
+include versioneer.py
+include jval/_version.py

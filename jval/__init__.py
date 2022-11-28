@@ -390,3 +390,6 @@ class JVal:
         with open(jpath, "rb") as jfile:
             jobj = json.loads(jfile)
             return self.validate(jobj, expected=expected, optional=optional)
+
+from . import _version
+__version__ = _version.get_versions()['version']
