@@ -1,4 +1,4 @@
-# jval ![test](https://github.com/abmamo/jval/workflows/test/badge.svg?branch=main)
+# `jval` ![test](https://github.com/abmamo/jval/workflows/test/badge.svg?branch=main)
 package to validate JSON data against a schema
 
 # quickstart

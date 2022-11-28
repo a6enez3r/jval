@@ -20,7 +20,7 @@ setup(
     description="validate a JSON object against a schema",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="http://github.com/abmamo/jval",
+    url="http://github.com/a6enez3r/jval",
     author="Abenezer Mamo",
     author_email="hi@abenezer.sh",
     license="MIT",
