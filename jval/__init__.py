@@ -330,7 +330,8 @@ class JVal:
         """
         Validate a JSON object against a schema.
 
-        Parameters:
+        Args
+        ----
             - jobj (Dict[str, Any]): JSON object to validate.
             - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict
                                                          objects describing the required
@@ -339,7 +340,8 @@ class JVal:
                                                          & names of each JSON parameter that
                                                          may or may not be in the JSON object
 
-        Returns:
+        Returns
+        -------
             - bool: True if the JSON object satisfies the schema, False otherwise.
         """
         # get list of valid param names

@@ -482,67 +482,69 @@ or may not be in the JSON object. They are only checked for types.</p>
 </span><span id="L-330"><a href="#L-330"><span class="linenos">330</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-331"><a href="#L-331"><span class="linenos">331</span></a><span class="sd">        Validate a JSON object against a schema.</span>
 </span><span id="L-332"><a href="#L-332"><span class="linenos">332</span></a>
-</span><span id="L-333"><a href="#L-333"><span class="linenos">333</span></a><span class="sd">        Parameters:</span>
-</span><span id="L-334"><a href="#L-334"><span class="linenos">334</span></a><span class="sd">            - jobj (Dict[str, Any]): JSON object to validate.</span>
-</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
-</span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a><span class="sd">                                                         objects describing the required</span>
-</span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a><span class="sd">                                                         parameters of a JSON object</span>
-</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
-</span><span id="L-339"><a href="#L-339"><span class="linenos">339</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
-</span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
-</span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a>
-</span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a><span class="sd">        Returns:</span>
-</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="sd">            - bool: True if the JSON object satisfies the schema, False otherwise.</span>
-</span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a>        <span class="c1"># get list of valid param names</span>
-</span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_valid</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
-</span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a>        <span class="c1"># if no param names -&gt; no expected or optional found</span>
-</span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a>            <span class="c1"># log &amp; return</span>
-</span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no optional or expected specified&quot;</span><span class="p">)</span>
-</span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="L-352"><a href="#L-352"><span class="linenos">352</span></a>        <span class="c1"># check if any parameter present in JSON object is not in valid (i.e. check</span>
-</span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a>        <span class="c1"># it is allowed)</span>
-</span><span id="L-354"><a href="#L-354"><span class="linenos">354</span></a>        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains_invalid</span><span class="p">(</span><span class="n">jobj</span><span class="o">=</span><span class="n">jobj</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">)</span>
-</span><span id="L-355"><a href="#L-355"><span class="linenos">355</span></a>        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
-</span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="L-357"><a href="#L-357"><span class="linenos">357</span></a>        <span class="c1"># run validation</span>
-</span><span id="L-358"><a href="#L-358"><span class="linenos">358</span></a>        <span class="k">if</span> <span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-359"><a href="#L-359"><span class="linenos">359</span></a>            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-360"><a href="#L-360"><span class="linenos">360</span></a>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span>
-</span><span id="L-361"><a href="#L-361"><span class="linenos">361</span></a>                    <span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span>
-</span><span id="L-362"><a href="#L-362"><span class="linenos">362</span></a>                <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</span><span id="L-363"><a href="#L-363"><span class="linenos">363</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</span><span id="L-364"><a href="#L-364"><span class="linenos">364</span></a>        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-365"><a href="#L-365"><span class="linenos">365</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span>
-</span><span id="L-366"><a href="#L-366"><span class="linenos">366</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="L-367"><a href="#L-367"><span class="linenos">367</span></a>
-</span><span id="L-368"><a href="#L-368"><span class="linenos">368</span></a>    <span class="k">def</span> <span class="nf">fvalidate</span><span class="p">(</span>
-</span><span id="L-369"><a href="#L-369"><span class="linenos">369</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-370"><a href="#L-370"><span class="linenos">370</span></a>        <span class="n">jpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="L-371"><a href="#L-371"><span class="linenos">371</span></a>        <span class="n">expected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-372"><a href="#L-372"><span class="linenos">372</span></a>        <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-373"><a href="#L-373"><span class="linenos">373</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-374"><a href="#L-374"><span class="linenos">374</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-375"><a href="#L-375"><span class="linenos">375</span></a><span class="sd">        Validate a JSON file against a schema.</span>
-</span><span id="L-376"><a href="#L-376"><span class="linenos">376</span></a>
-</span><span id="L-377"><a href="#L-377"><span class="linenos">377</span></a><span class="sd">        Args</span>
-</span><span id="L-378"><a href="#L-378"><span class="linenos">378</span></a><span class="sd">        ----</span>
-</span><span id="L-379"><a href="#L-379"><span class="linenos">379</span></a><span class="sd">            - jpath: Absolute path to the JSON file.</span>
-</span><span id="L-380"><a href="#L-380"><span class="linenos">380</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
-</span><span id="L-381"><a href="#L-381"><span class="linenos">381</span></a><span class="sd">                                                         objects describing the required</span>
-</span><span id="L-382"><a href="#L-382"><span class="linenos">382</span></a><span class="sd">                                                         parameters of a JSON object</span>
-</span><span id="L-383"><a href="#L-383"><span class="linenos">383</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
-</span><span id="L-384"><a href="#L-384"><span class="linenos">384</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
-</span><span id="L-385"><a href="#L-385"><span class="linenos">385</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
-</span><span id="L-386"><a href="#L-386"><span class="linenos">386</span></a>
-</span><span id="L-387"><a href="#L-387"><span class="linenos">387</span></a><span class="sd">        Returns</span>
-</span><span id="L-388"><a href="#L-388"><span class="linenos">388</span></a><span class="sd">        -------</span>
-</span><span id="L-389"><a href="#L-389"><span class="linenos">389</span></a><span class="sd">            - bool: True if the JSON file satisfies the schema, False otherwise.</span>
-</span><span id="L-390"><a href="#L-390"><span class="linenos">390</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-391"><a href="#L-391"><span class="linenos">391</span></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jpath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
-</span><span id="L-392"><a href="#L-392"><span class="linenos">392</span></a>            <span class="n">jobj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
-</span><span id="L-393"><a href="#L-393"><span class="linenos">393</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
+</span><span id="L-333"><a href="#L-333"><span class="linenos">333</span></a><span class="sd">        Args</span>
+</span><span id="L-334"><a href="#L-334"><span class="linenos">334</span></a><span class="sd">        ----</span>
+</span><span id="L-335"><a href="#L-335"><span class="linenos">335</span></a><span class="sd">            - jobj (Dict[str, Any]): JSON object to validate.</span>
+</span><span id="L-336"><a href="#L-336"><span class="linenos">336</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
+</span><span id="L-337"><a href="#L-337"><span class="linenos">337</span></a><span class="sd">                                                         objects describing the required</span>
+</span><span id="L-338"><a href="#L-338"><span class="linenos">338</span></a><span class="sd">                                                         parameters of a JSON object</span>
+</span><span id="L-339"><a href="#L-339"><span class="linenos">339</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
+</span><span id="L-340"><a href="#L-340"><span class="linenos">340</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
+</span><span id="L-341"><a href="#L-341"><span class="linenos">341</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
+</span><span id="L-342"><a href="#L-342"><span class="linenos">342</span></a>
+</span><span id="L-343"><a href="#L-343"><span class="linenos">343</span></a><span class="sd">        Returns</span>
+</span><span id="L-344"><a href="#L-344"><span class="linenos">344</span></a><span class="sd">        -------</span>
+</span><span id="L-345"><a href="#L-345"><span class="linenos">345</span></a><span class="sd">            - bool: True if the JSON object satisfies the schema, False otherwise.</span>
+</span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a>        <span class="c1"># get list of valid param names</span>
+</span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_valid</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
+</span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a>        <span class="c1"># if no param names -&gt; no expected or optional found</span>
+</span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a>            <span class="c1"># log &amp; return</span>
+</span><span id="L-352"><a href="#L-352"><span class="linenos">352</span></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no optional or expected specified&quot;</span><span class="p">)</span>
+</span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="L-354"><a href="#L-354"><span class="linenos">354</span></a>        <span class="c1"># check if any parameter present in JSON object is not in valid (i.e. check</span>
+</span><span id="L-355"><a href="#L-355"><span class="linenos">355</span></a>        <span class="c1"># it is allowed)</span>
+</span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a>        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains_invalid</span><span class="p">(</span><span class="n">jobj</span><span class="o">=</span><span class="n">jobj</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">)</span>
+</span><span id="L-357"><a href="#L-357"><span class="linenos">357</span></a>        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+</span><span id="L-358"><a href="#L-358"><span class="linenos">358</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="L-359"><a href="#L-359"><span class="linenos">359</span></a>        <span class="c1"># run validation</span>
+</span><span id="L-360"><a href="#L-360"><span class="linenos">360</span></a>        <span class="k">if</span> <span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-361"><a href="#L-361"><span class="linenos">361</span></a>            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-362"><a href="#L-362"><span class="linenos">362</span></a>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span>
+</span><span id="L-363"><a href="#L-363"><span class="linenos">363</span></a>                    <span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span>
+</span><span id="L-364"><a href="#L-364"><span class="linenos">364</span></a>                <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</span><span id="L-365"><a href="#L-365"><span class="linenos">365</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</span><span id="L-366"><a href="#L-366"><span class="linenos">366</span></a>        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-367"><a href="#L-367"><span class="linenos">367</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span>
+</span><span id="L-368"><a href="#L-368"><span class="linenos">368</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="L-369"><a href="#L-369"><span class="linenos">369</span></a>
+</span><span id="L-370"><a href="#L-370"><span class="linenos">370</span></a>    <span class="k">def</span> <span class="nf">fvalidate</span><span class="p">(</span>
+</span><span id="L-371"><a href="#L-371"><span class="linenos">371</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-372"><a href="#L-372"><span class="linenos">372</span></a>        <span class="n">jpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="L-373"><a href="#L-373"><span class="linenos">373</span></a>        <span class="n">expected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-374"><a href="#L-374"><span class="linenos">374</span></a>        <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-375"><a href="#L-375"><span class="linenos">375</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-376"><a href="#L-376"><span class="linenos">376</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-377"><a href="#L-377"><span class="linenos">377</span></a><span class="sd">        Validate a JSON file against a schema.</span>
+</span><span id="L-378"><a href="#L-378"><span class="linenos">378</span></a>
+</span><span id="L-379"><a href="#L-379"><span class="linenos">379</span></a><span class="sd">        Args</span>
+</span><span id="L-380"><a href="#L-380"><span class="linenos">380</span></a><span class="sd">        ----</span>
+</span><span id="L-381"><a href="#L-381"><span class="linenos">381</span></a><span class="sd">            - jpath: Absolute path to the JSON file.</span>
+</span><span id="L-382"><a href="#L-382"><span class="linenos">382</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
+</span><span id="L-383"><a href="#L-383"><span class="linenos">383</span></a><span class="sd">                                                         objects describing the required</span>
+</span><span id="L-384"><a href="#L-384"><span class="linenos">384</span></a><span class="sd">                                                         parameters of a JSON object</span>
+</span><span id="L-385"><a href="#L-385"><span class="linenos">385</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
+</span><span id="L-386"><a href="#L-386"><span class="linenos">386</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
+</span><span id="L-387"><a href="#L-387"><span class="linenos">387</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
+</span><span id="L-388"><a href="#L-388"><span class="linenos">388</span></a>
+</span><span id="L-389"><a href="#L-389"><span class="linenos">389</span></a><span class="sd">        Returns</span>
+</span><span id="L-390"><a href="#L-390"><span class="linenos">390</span></a><span class="sd">        -------</span>
+</span><span id="L-391"><a href="#L-391"><span class="linenos">391</span></a><span class="sd">            - bool: True if the JSON file satisfies the schema, False otherwise.</span>
+</span><span id="L-392"><a href="#L-392"><span class="linenos">392</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-393"><a href="#L-393"><span class="linenos">393</span></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jpath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
+</span><span id="L-394"><a href="#L-394"><span class="linenos">394</span></a>            <span class="n">jobj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
+</span><span id="L-395"><a href="#L-395"><span class="linenos">395</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -791,67 +793,69 @@ or may not be in the JSON object. They are only checked for types.</p>
 </span><span id="JVal-331"><a href="#JVal-331"><span class="linenos">331</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="JVal-332"><a href="#JVal-332"><span class="linenos">332</span></a><span class="sd">        Validate a JSON object against a schema.</span>
 </span><span id="JVal-333"><a href="#JVal-333"><span class="linenos">333</span></a>
-</span><span id="JVal-334"><a href="#JVal-334"><span class="linenos">334</span></a><span class="sd">        Parameters:</span>
-</span><span id="JVal-335"><a href="#JVal-335"><span class="linenos">335</span></a><span class="sd">            - jobj (Dict[str, Any]): JSON object to validate.</span>
-</span><span id="JVal-336"><a href="#JVal-336"><span class="linenos">336</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
-</span><span id="JVal-337"><a href="#JVal-337"><span class="linenos">337</span></a><span class="sd">                                                         objects describing the required</span>
-</span><span id="JVal-338"><a href="#JVal-338"><span class="linenos">338</span></a><span class="sd">                                                         parameters of a JSON object</span>
-</span><span id="JVal-339"><a href="#JVal-339"><span class="linenos">339</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
-</span><span id="JVal-340"><a href="#JVal-340"><span class="linenos">340</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
-</span><span id="JVal-341"><a href="#JVal-341"><span class="linenos">341</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
-</span><span id="JVal-342"><a href="#JVal-342"><span class="linenos">342</span></a>
-</span><span id="JVal-343"><a href="#JVal-343"><span class="linenos">343</span></a><span class="sd">        Returns:</span>
-</span><span id="JVal-344"><a href="#JVal-344"><span class="linenos">344</span></a><span class="sd">            - bool: True if the JSON object satisfies the schema, False otherwise.</span>
-</span><span id="JVal-345"><a href="#JVal-345"><span class="linenos">345</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="JVal-346"><a href="#JVal-346"><span class="linenos">346</span></a>        <span class="c1"># get list of valid param names</span>
-</span><span id="JVal-347"><a href="#JVal-347"><span class="linenos">347</span></a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_valid</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
-</span><span id="JVal-348"><a href="#JVal-348"><span class="linenos">348</span></a>        <span class="c1"># if no param names -&gt; no expected or optional found</span>
-</span><span id="JVal-349"><a href="#JVal-349"><span class="linenos">349</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="JVal-350"><a href="#JVal-350"><span class="linenos">350</span></a>            <span class="c1"># log &amp; return</span>
-</span><span id="JVal-351"><a href="#JVal-351"><span class="linenos">351</span></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no optional or expected specified&quot;</span><span class="p">)</span>
-</span><span id="JVal-352"><a href="#JVal-352"><span class="linenos">352</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="JVal-353"><a href="#JVal-353"><span class="linenos">353</span></a>        <span class="c1"># check if any parameter present in JSON object is not in valid (i.e. check</span>
-</span><span id="JVal-354"><a href="#JVal-354"><span class="linenos">354</span></a>        <span class="c1"># it is allowed)</span>
-</span><span id="JVal-355"><a href="#JVal-355"><span class="linenos">355</span></a>        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains_invalid</span><span class="p">(</span><span class="n">jobj</span><span class="o">=</span><span class="n">jobj</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">)</span>
-</span><span id="JVal-356"><a href="#JVal-356"><span class="linenos">356</span></a>        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
-</span><span id="JVal-357"><a href="#JVal-357"><span class="linenos">357</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="JVal-358"><a href="#JVal-358"><span class="linenos">358</span></a>        <span class="c1"># run validation</span>
-</span><span id="JVal-359"><a href="#JVal-359"><span class="linenos">359</span></a>        <span class="k">if</span> <span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="JVal-360"><a href="#JVal-360"><span class="linenos">360</span></a>            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="JVal-361"><a href="#JVal-361"><span class="linenos">361</span></a>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span>
-</span><span id="JVal-362"><a href="#JVal-362"><span class="linenos">362</span></a>                    <span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span>
-</span><span id="JVal-363"><a href="#JVal-363"><span class="linenos">363</span></a>                <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</span><span id="JVal-364"><a href="#JVal-364"><span class="linenos">364</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</span><span id="JVal-365"><a href="#JVal-365"><span class="linenos">365</span></a>        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="JVal-366"><a href="#JVal-366"><span class="linenos">366</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span>
-</span><span id="JVal-367"><a href="#JVal-367"><span class="linenos">367</span></a>        <span class="k">return</span> <span class="kc">True</span>
-</span><span id="JVal-368"><a href="#JVal-368"><span class="linenos">368</span></a>
-</span><span id="JVal-369"><a href="#JVal-369"><span class="linenos">369</span></a>    <span class="k">def</span> <span class="nf">fvalidate</span><span class="p">(</span>
-</span><span id="JVal-370"><a href="#JVal-370"><span class="linenos">370</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="JVal-371"><a href="#JVal-371"><span class="linenos">371</span></a>        <span class="n">jpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="JVal-372"><a href="#JVal-372"><span class="linenos">372</span></a>        <span class="n">expected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="JVal-373"><a href="#JVal-373"><span class="linenos">373</span></a>        <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="JVal-374"><a href="#JVal-374"><span class="linenos">374</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="JVal-375"><a href="#JVal-375"><span class="linenos">375</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="JVal-376"><a href="#JVal-376"><span class="linenos">376</span></a><span class="sd">        Validate a JSON file against a schema.</span>
-</span><span id="JVal-377"><a href="#JVal-377"><span class="linenos">377</span></a>
-</span><span id="JVal-378"><a href="#JVal-378"><span class="linenos">378</span></a><span class="sd">        Args</span>
-</span><span id="JVal-379"><a href="#JVal-379"><span class="linenos">379</span></a><span class="sd">        ----</span>
-</span><span id="JVal-380"><a href="#JVal-380"><span class="linenos">380</span></a><span class="sd">            - jpath: Absolute path to the JSON file.</span>
-</span><span id="JVal-381"><a href="#JVal-381"><span class="linenos">381</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
-</span><span id="JVal-382"><a href="#JVal-382"><span class="linenos">382</span></a><span class="sd">                                                         objects describing the required</span>
-</span><span id="JVal-383"><a href="#JVal-383"><span class="linenos">383</span></a><span class="sd">                                                         parameters of a JSON object</span>
-</span><span id="JVal-384"><a href="#JVal-384"><span class="linenos">384</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
-</span><span id="JVal-385"><a href="#JVal-385"><span class="linenos">385</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
-</span><span id="JVal-386"><a href="#JVal-386"><span class="linenos">386</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
-</span><span id="JVal-387"><a href="#JVal-387"><span class="linenos">387</span></a>
-</span><span id="JVal-388"><a href="#JVal-388"><span class="linenos">388</span></a><span class="sd">        Returns</span>
-</span><span id="JVal-389"><a href="#JVal-389"><span class="linenos">389</span></a><span class="sd">        -------</span>
-</span><span id="JVal-390"><a href="#JVal-390"><span class="linenos">390</span></a><span class="sd">            - bool: True if the JSON file satisfies the schema, False otherwise.</span>
-</span><span id="JVal-391"><a href="#JVal-391"><span class="linenos">391</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="JVal-392"><a href="#JVal-392"><span class="linenos">392</span></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jpath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
-</span><span id="JVal-393"><a href="#JVal-393"><span class="linenos">393</span></a>            <span class="n">jobj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
-</span><span id="JVal-394"><a href="#JVal-394"><span class="linenos">394</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
+</span><span id="JVal-334"><a href="#JVal-334"><span class="linenos">334</span></a><span class="sd">        Args</span>
+</span><span id="JVal-335"><a href="#JVal-335"><span class="linenos">335</span></a><span class="sd">        ----</span>
+</span><span id="JVal-336"><a href="#JVal-336"><span class="linenos">336</span></a><span class="sd">            - jobj (Dict[str, Any]): JSON object to validate.</span>
+</span><span id="JVal-337"><a href="#JVal-337"><span class="linenos">337</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
+</span><span id="JVal-338"><a href="#JVal-338"><span class="linenos">338</span></a><span class="sd">                                                         objects describing the required</span>
+</span><span id="JVal-339"><a href="#JVal-339"><span class="linenos">339</span></a><span class="sd">                                                         parameters of a JSON object</span>
+</span><span id="JVal-340"><a href="#JVal-340"><span class="linenos">340</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
+</span><span id="JVal-341"><a href="#JVal-341"><span class="linenos">341</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
+</span><span id="JVal-342"><a href="#JVal-342"><span class="linenos">342</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
+</span><span id="JVal-343"><a href="#JVal-343"><span class="linenos">343</span></a>
+</span><span id="JVal-344"><a href="#JVal-344"><span class="linenos">344</span></a><span class="sd">        Returns</span>
+</span><span id="JVal-345"><a href="#JVal-345"><span class="linenos">345</span></a><span class="sd">        -------</span>
+</span><span id="JVal-346"><a href="#JVal-346"><span class="linenos">346</span></a><span class="sd">            - bool: True if the JSON object satisfies the schema, False otherwise.</span>
+</span><span id="JVal-347"><a href="#JVal-347"><span class="linenos">347</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="JVal-348"><a href="#JVal-348"><span class="linenos">348</span></a>        <span class="c1"># get list of valid param names</span>
+</span><span id="JVal-349"><a href="#JVal-349"><span class="linenos">349</span></a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_valid</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
+</span><span id="JVal-350"><a href="#JVal-350"><span class="linenos">350</span></a>        <span class="c1"># if no param names -&gt; no expected or optional found</span>
+</span><span id="JVal-351"><a href="#JVal-351"><span class="linenos">351</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="JVal-352"><a href="#JVal-352"><span class="linenos">352</span></a>            <span class="c1"># log &amp; return</span>
+</span><span id="JVal-353"><a href="#JVal-353"><span class="linenos">353</span></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no optional or expected specified&quot;</span><span class="p">)</span>
+</span><span id="JVal-354"><a href="#JVal-354"><span class="linenos">354</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="JVal-355"><a href="#JVal-355"><span class="linenos">355</span></a>        <span class="c1"># check if any parameter present in JSON object is not in valid (i.e. check</span>
+</span><span id="JVal-356"><a href="#JVal-356"><span class="linenos">356</span></a>        <span class="c1"># it is allowed)</span>
+</span><span id="JVal-357"><a href="#JVal-357"><span class="linenos">357</span></a>        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains_invalid</span><span class="p">(</span><span class="n">jobj</span><span class="o">=</span><span class="n">jobj</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">)</span>
+</span><span id="JVal-358"><a href="#JVal-358"><span class="linenos">358</span></a>        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+</span><span id="JVal-359"><a href="#JVal-359"><span class="linenos">359</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="JVal-360"><a href="#JVal-360"><span class="linenos">360</span></a>        <span class="c1"># run validation</span>
+</span><span id="JVal-361"><a href="#JVal-361"><span class="linenos">361</span></a>        <span class="k">if</span> <span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="JVal-362"><a href="#JVal-362"><span class="linenos">362</span></a>            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="JVal-363"><a href="#JVal-363"><span class="linenos">363</span></a>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span>
+</span><span id="JVal-364"><a href="#JVal-364"><span class="linenos">364</span></a>                    <span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span>
+</span><span id="JVal-365"><a href="#JVal-365"><span class="linenos">365</span></a>                <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</span><span id="JVal-366"><a href="#JVal-366"><span class="linenos">366</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</span><span id="JVal-367"><a href="#JVal-367"><span class="linenos">367</span></a>        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="JVal-368"><a href="#JVal-368"><span class="linenos">368</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span>
+</span><span id="JVal-369"><a href="#JVal-369"><span class="linenos">369</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="JVal-370"><a href="#JVal-370"><span class="linenos">370</span></a>
+</span><span id="JVal-371"><a href="#JVal-371"><span class="linenos">371</span></a>    <span class="k">def</span> <span class="nf">fvalidate</span><span class="p">(</span>
+</span><span id="JVal-372"><a href="#JVal-372"><span class="linenos">372</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="JVal-373"><a href="#JVal-373"><span class="linenos">373</span></a>        <span class="n">jpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="JVal-374"><a href="#JVal-374"><span class="linenos">374</span></a>        <span class="n">expected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="JVal-375"><a href="#JVal-375"><span class="linenos">375</span></a>        <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="JVal-376"><a href="#JVal-376"><span class="linenos">376</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="JVal-377"><a href="#JVal-377"><span class="linenos">377</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="JVal-378"><a href="#JVal-378"><span class="linenos">378</span></a><span class="sd">        Validate a JSON file against a schema.</span>
+</span><span id="JVal-379"><a href="#JVal-379"><span class="linenos">379</span></a>
+</span><span id="JVal-380"><a href="#JVal-380"><span class="linenos">380</span></a><span class="sd">        Args</span>
+</span><span id="JVal-381"><a href="#JVal-381"><span class="linenos">381</span></a><span class="sd">        ----</span>
+</span><span id="JVal-382"><a href="#JVal-382"><span class="linenos">382</span></a><span class="sd">            - jpath: Absolute path to the JSON file.</span>
+</span><span id="JVal-383"><a href="#JVal-383"><span class="linenos">383</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
+</span><span id="JVal-384"><a href="#JVal-384"><span class="linenos">384</span></a><span class="sd">                                                         objects describing the required</span>
+</span><span id="JVal-385"><a href="#JVal-385"><span class="linenos">385</span></a><span class="sd">                                                         parameters of a JSON object</span>
+</span><span id="JVal-386"><a href="#JVal-386"><span class="linenos">386</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
+</span><span id="JVal-387"><a href="#JVal-387"><span class="linenos">387</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
+</span><span id="JVal-388"><a href="#JVal-388"><span class="linenos">388</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
+</span><span id="JVal-389"><a href="#JVal-389"><span class="linenos">389</span></a>
+</span><span id="JVal-390"><a href="#JVal-390"><span class="linenos">390</span></a><span class="sd">        Returns</span>
+</span><span id="JVal-391"><a href="#JVal-391"><span class="linenos">391</span></a><span class="sd">        -------</span>
+</span><span id="JVal-392"><a href="#JVal-392"><span class="linenos">392</span></a><span class="sd">            - bool: True if the JSON file satisfies the schema, False otherwise.</span>
+</span><span id="JVal-393"><a href="#JVal-393"><span class="linenos">393</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="JVal-394"><a href="#JVal-394"><span class="linenos">394</span></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jpath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
+</span><span id="JVal-395"><a href="#JVal-395"><span class="linenos">395</span></a>            <span class="n">jobj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
+</span><span id="JVal-396"><a href="#JVal-396"><span class="linenos">396</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -901,56 +905,62 @@ or may not be in the JSON object. They are only checked for types.</p>
 </span><span id="JVal.validate-331"><a href="#JVal.validate-331"><span class="linenos">331</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="JVal.validate-332"><a href="#JVal.validate-332"><span class="linenos">332</span></a><span class="sd">        Validate a JSON object against a schema.</span>
 </span><span id="JVal.validate-333"><a href="#JVal.validate-333"><span class="linenos">333</span></a>
-</span><span id="JVal.validate-334"><a href="#JVal.validate-334"><span class="linenos">334</span></a><span class="sd">        Parameters:</span>
-</span><span id="JVal.validate-335"><a href="#JVal.validate-335"><span class="linenos">335</span></a><span class="sd">            - jobj (Dict[str, Any]): JSON object to validate.</span>
-</span><span id="JVal.validate-336"><a href="#JVal.validate-336"><span class="linenos">336</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
-</span><span id="JVal.validate-337"><a href="#JVal.validate-337"><span class="linenos">337</span></a><span class="sd">                                                         objects describing the required</span>
-</span><span id="JVal.validate-338"><a href="#JVal.validate-338"><span class="linenos">338</span></a><span class="sd">                                                         parameters of a JSON object</span>
-</span><span id="JVal.validate-339"><a href="#JVal.validate-339"><span class="linenos">339</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
-</span><span id="JVal.validate-340"><a href="#JVal.validate-340"><span class="linenos">340</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
-</span><span id="JVal.validate-341"><a href="#JVal.validate-341"><span class="linenos">341</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
-</span><span id="JVal.validate-342"><a href="#JVal.validate-342"><span class="linenos">342</span></a>
-</span><span id="JVal.validate-343"><a href="#JVal.validate-343"><span class="linenos">343</span></a><span class="sd">        Returns:</span>
-</span><span id="JVal.validate-344"><a href="#JVal.validate-344"><span class="linenos">344</span></a><span class="sd">            - bool: True if the JSON object satisfies the schema, False otherwise.</span>
-</span><span id="JVal.validate-345"><a href="#JVal.validate-345"><span class="linenos">345</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="JVal.validate-346"><a href="#JVal.validate-346"><span class="linenos">346</span></a>        <span class="c1"># get list of valid param names</span>
-</span><span id="JVal.validate-347"><a href="#JVal.validate-347"><span class="linenos">347</span></a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_valid</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
-</span><span id="JVal.validate-348"><a href="#JVal.validate-348"><span class="linenos">348</span></a>        <span class="c1"># if no param names -&gt; no expected or optional found</span>
-</span><span id="JVal.validate-349"><a href="#JVal.validate-349"><span class="linenos">349</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="JVal.validate-350"><a href="#JVal.validate-350"><span class="linenos">350</span></a>            <span class="c1"># log &amp; return</span>
-</span><span id="JVal.validate-351"><a href="#JVal.validate-351"><span class="linenos">351</span></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no optional or expected specified&quot;</span><span class="p">)</span>
-</span><span id="JVal.validate-352"><a href="#JVal.validate-352"><span class="linenos">352</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="JVal.validate-353"><a href="#JVal.validate-353"><span class="linenos">353</span></a>        <span class="c1"># check if any parameter present in JSON object is not in valid (i.e. check</span>
-</span><span id="JVal.validate-354"><a href="#JVal.validate-354"><span class="linenos">354</span></a>        <span class="c1"># it is allowed)</span>
-</span><span id="JVal.validate-355"><a href="#JVal.validate-355"><span class="linenos">355</span></a>        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains_invalid</span><span class="p">(</span><span class="n">jobj</span><span class="o">=</span><span class="n">jobj</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">)</span>
-</span><span id="JVal.validate-356"><a href="#JVal.validate-356"><span class="linenos">356</span></a>        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
-</span><span id="JVal.validate-357"><a href="#JVal.validate-357"><span class="linenos">357</span></a>            <span class="k">return</span> <span class="kc">False</span>
-</span><span id="JVal.validate-358"><a href="#JVal.validate-358"><span class="linenos">358</span></a>        <span class="c1"># run validation</span>
-</span><span id="JVal.validate-359"><a href="#JVal.validate-359"><span class="linenos">359</span></a>        <span class="k">if</span> <span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="JVal.validate-360"><a href="#JVal.validate-360"><span class="linenos">360</span></a>            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="JVal.validate-361"><a href="#JVal.validate-361"><span class="linenos">361</span></a>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span>
-</span><span id="JVal.validate-362"><a href="#JVal.validate-362"><span class="linenos">362</span></a>                    <span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span>
-</span><span id="JVal.validate-363"><a href="#JVal.validate-363"><span class="linenos">363</span></a>                <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</span><span id="JVal.validate-364"><a href="#JVal.validate-364"><span class="linenos">364</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
-</span><span id="JVal.validate-365"><a href="#JVal.validate-365"><span class="linenos">365</span></a>        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="JVal.validate-366"><a href="#JVal.validate-366"><span class="linenos">366</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span>
-</span><span id="JVal.validate-367"><a href="#JVal.validate-367"><span class="linenos">367</span></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="JVal.validate-334"><a href="#JVal.validate-334"><span class="linenos">334</span></a><span class="sd">        Args</span>
+</span><span id="JVal.validate-335"><a href="#JVal.validate-335"><span class="linenos">335</span></a><span class="sd">        ----</span>
+</span><span id="JVal.validate-336"><a href="#JVal.validate-336"><span class="linenos">336</span></a><span class="sd">            - jobj (Dict[str, Any]): JSON object to validate.</span>
+</span><span id="JVal.validate-337"><a href="#JVal.validate-337"><span class="linenos">337</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
+</span><span id="JVal.validate-338"><a href="#JVal.validate-338"><span class="linenos">338</span></a><span class="sd">                                                         objects describing the required</span>
+</span><span id="JVal.validate-339"><a href="#JVal.validate-339"><span class="linenos">339</span></a><span class="sd">                                                         parameters of a JSON object</span>
+</span><span id="JVal.validate-340"><a href="#JVal.validate-340"><span class="linenos">340</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
+</span><span id="JVal.validate-341"><a href="#JVal.validate-341"><span class="linenos">341</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
+</span><span id="JVal.validate-342"><a href="#JVal.validate-342"><span class="linenos">342</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
+</span><span id="JVal.validate-343"><a href="#JVal.validate-343"><span class="linenos">343</span></a>
+</span><span id="JVal.validate-344"><a href="#JVal.validate-344"><span class="linenos">344</span></a><span class="sd">        Returns</span>
+</span><span id="JVal.validate-345"><a href="#JVal.validate-345"><span class="linenos">345</span></a><span class="sd">        -------</span>
+</span><span id="JVal.validate-346"><a href="#JVal.validate-346"><span class="linenos">346</span></a><span class="sd">            - bool: True if the JSON object satisfies the schema, False otherwise.</span>
+</span><span id="JVal.validate-347"><a href="#JVal.validate-347"><span class="linenos">347</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="JVal.validate-348"><a href="#JVal.validate-348"><span class="linenos">348</span></a>        <span class="c1"># get list of valid param names</span>
+</span><span id="JVal.validate-349"><a href="#JVal.validate-349"><span class="linenos">349</span></a>        <span class="n">valid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_valid</span><span class="p">(</span><span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
+</span><span id="JVal.validate-350"><a href="#JVal.validate-350"><span class="linenos">350</span></a>        <span class="c1"># if no param names -&gt; no expected or optional found</span>
+</span><span id="JVal.validate-351"><a href="#JVal.validate-351"><span class="linenos">351</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="JVal.validate-352"><a href="#JVal.validate-352"><span class="linenos">352</span></a>            <span class="c1"># log &amp; return</span>
+</span><span id="JVal.validate-353"><a href="#JVal.validate-353"><span class="linenos">353</span></a>            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no optional or expected specified&quot;</span><span class="p">)</span>
+</span><span id="JVal.validate-354"><a href="#JVal.validate-354"><span class="linenos">354</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="JVal.validate-355"><a href="#JVal.validate-355"><span class="linenos">355</span></a>        <span class="c1"># check if any parameter present in JSON object is not in valid (i.e. check</span>
+</span><span id="JVal.validate-356"><a href="#JVal.validate-356"><span class="linenos">356</span></a>        <span class="c1"># it is allowed)</span>
+</span><span id="JVal.validate-357"><a href="#JVal.validate-357"><span class="linenos">357</span></a>        <span class="n">invalid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_contains_invalid</span><span class="p">(</span><span class="n">jobj</span><span class="o">=</span><span class="n">jobj</span><span class="p">,</span> <span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">)</span>
+</span><span id="JVal.validate-358"><a href="#JVal.validate-358"><span class="linenos">358</span></a>        <span class="k">if</span> <span class="n">invalid</span><span class="p">:</span>
+</span><span id="JVal.validate-359"><a href="#JVal.validate-359"><span class="linenos">359</span></a>            <span class="k">return</span> <span class="kc">False</span>
+</span><span id="JVal.validate-360"><a href="#JVal.validate-360"><span class="linenos">360</span></a>        <span class="c1"># run validation</span>
+</span><span id="JVal.validate-361"><a href="#JVal.validate-361"><span class="linenos">361</span></a>        <span class="k">if</span> <span class="n">expected</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="JVal.validate-362"><a href="#JVal.validate-362"><span class="linenos">362</span></a>            <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="JVal.validate-363"><a href="#JVal.validate-363"><span class="linenos">363</span></a>                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span>
+</span><span id="JVal.validate-364"><a href="#JVal.validate-364"><span class="linenos">364</span></a>                    <span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span>
+</span><span id="JVal.validate-365"><a href="#JVal.validate-365"><span class="linenos">365</span></a>                <span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</span><span id="JVal.validate-366"><a href="#JVal.validate-366"><span class="linenos">366</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_expected</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</span><span id="JVal.validate-367"><a href="#JVal.validate-367"><span class="linenos">367</span></a>        <span class="k">if</span> <span class="n">optional</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="JVal.validate-368"><a href="#JVal.validate-368"><span class="linenos">368</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_optional</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span>
+</span><span id="JVal.validate-369"><a href="#JVal.validate-369"><span class="linenos">369</span></a>        <span class="k">return</span> <span class="kc">True</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Validate a JSON object against a schema.</p>
 
-<p>Parameters:
-    - jobj (Dict[str, Any]): JSON object to validate.
-    - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict
-                                                 objects describing the required
-                                                 parameters of a JSON object
-    - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types
-                                                 &amp; names of each JSON parameter that
-                                                 may or may not be in the JSON object</p>
+<h2 id="args">Args</h2>
 
-<p>Returns:
-    - bool: True if the JSON object satisfies the schema, False otherwise.</p>
+<pre><code>- jobj (Dict[str, Any]): JSON object to validate.
+- expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict
+                                             objects describing the required
+                                             parameters of a JSON object
+- optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types
+                                             &amp; names of each JSON parameter that
+                                             may or may not be in the JSON object
+</code></pre>
+
+<h2 id="returns">Returns</h2>
+
+<pre><code>- bool: True if the JSON object satisfies the schema, False otherwise.
+</code></pre>
 </div>
 
 
@@ -966,32 +976,32 @@ or may not be in the JSON object. They are only checked for types.</p>
 
     </div>
     <a class="headerlink" href="#JVal.fvalidate"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="JVal.fvalidate-369"><a href="#JVal.fvalidate-369"><span class="linenos">369</span></a>    <span class="k">def</span> <span class="nf">fvalidate</span><span class="p">(</span>
-</span><span id="JVal.fvalidate-370"><a href="#JVal.fvalidate-370"><span class="linenos">370</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="JVal.fvalidate-371"><a href="#JVal.fvalidate-371"><span class="linenos">371</span></a>        <span class="n">jpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="JVal.fvalidate-372"><a href="#JVal.fvalidate-372"><span class="linenos">372</span></a>        <span class="n">expected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="JVal.fvalidate-373"><a href="#JVal.fvalidate-373"><span class="linenos">373</span></a>        <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="JVal.fvalidate-374"><a href="#JVal.fvalidate-374"><span class="linenos">374</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="JVal.fvalidate-375"><a href="#JVal.fvalidate-375"><span class="linenos">375</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="JVal.fvalidate-376"><a href="#JVal.fvalidate-376"><span class="linenos">376</span></a><span class="sd">        Validate a JSON file against a schema.</span>
-</span><span id="JVal.fvalidate-377"><a href="#JVal.fvalidate-377"><span class="linenos">377</span></a>
-</span><span id="JVal.fvalidate-378"><a href="#JVal.fvalidate-378"><span class="linenos">378</span></a><span class="sd">        Args</span>
-</span><span id="JVal.fvalidate-379"><a href="#JVal.fvalidate-379"><span class="linenos">379</span></a><span class="sd">        ----</span>
-</span><span id="JVal.fvalidate-380"><a href="#JVal.fvalidate-380"><span class="linenos">380</span></a><span class="sd">            - jpath: Absolute path to the JSON file.</span>
-</span><span id="JVal.fvalidate-381"><a href="#JVal.fvalidate-381"><span class="linenos">381</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
-</span><span id="JVal.fvalidate-382"><a href="#JVal.fvalidate-382"><span class="linenos">382</span></a><span class="sd">                                                         objects describing the required</span>
-</span><span id="JVal.fvalidate-383"><a href="#JVal.fvalidate-383"><span class="linenos">383</span></a><span class="sd">                                                         parameters of a JSON object</span>
-</span><span id="JVal.fvalidate-384"><a href="#JVal.fvalidate-384"><span class="linenos">384</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
-</span><span id="JVal.fvalidate-385"><a href="#JVal.fvalidate-385"><span class="linenos">385</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
-</span><span id="JVal.fvalidate-386"><a href="#JVal.fvalidate-386"><span class="linenos">386</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
-</span><span id="JVal.fvalidate-387"><a href="#JVal.fvalidate-387"><span class="linenos">387</span></a>
-</span><span id="JVal.fvalidate-388"><a href="#JVal.fvalidate-388"><span class="linenos">388</span></a><span class="sd">        Returns</span>
-</span><span id="JVal.fvalidate-389"><a href="#JVal.fvalidate-389"><span class="linenos">389</span></a><span class="sd">        -------</span>
-</span><span id="JVal.fvalidate-390"><a href="#JVal.fvalidate-390"><span class="linenos">390</span></a><span class="sd">            - bool: True if the JSON file satisfies the schema, False otherwise.</span>
-</span><span id="JVal.fvalidate-391"><a href="#JVal.fvalidate-391"><span class="linenos">391</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="JVal.fvalidate-392"><a href="#JVal.fvalidate-392"><span class="linenos">392</span></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jpath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
-</span><span id="JVal.fvalidate-393"><a href="#JVal.fvalidate-393"><span class="linenos">393</span></a>            <span class="n">jobj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
-</span><span id="JVal.fvalidate-394"><a href="#JVal.fvalidate-394"><span class="linenos">394</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="JVal.fvalidate-371"><a href="#JVal.fvalidate-371"><span class="linenos">371</span></a>    <span class="k">def</span> <span class="nf">fvalidate</span><span class="p">(</span>
+</span><span id="JVal.fvalidate-372"><a href="#JVal.fvalidate-372"><span class="linenos">372</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="JVal.fvalidate-373"><a href="#JVal.fvalidate-373"><span class="linenos">373</span></a>        <span class="n">jpath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="JVal.fvalidate-374"><a href="#JVal.fvalidate-374"><span class="linenos">374</span></a>        <span class="n">expected</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="JVal.fvalidate-375"><a href="#JVal.fvalidate-375"><span class="linenos">375</span></a>        <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="JVal.fvalidate-376"><a href="#JVal.fvalidate-376"><span class="linenos">376</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="JVal.fvalidate-377"><a href="#JVal.fvalidate-377"><span class="linenos">377</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="JVal.fvalidate-378"><a href="#JVal.fvalidate-378"><span class="linenos">378</span></a><span class="sd">        Validate a JSON file against a schema.</span>
+</span><span id="JVal.fvalidate-379"><a href="#JVal.fvalidate-379"><span class="linenos">379</span></a>
+</span><span id="JVal.fvalidate-380"><a href="#JVal.fvalidate-380"><span class="linenos">380</span></a><span class="sd">        Args</span>
+</span><span id="JVal.fvalidate-381"><a href="#JVal.fvalidate-381"><span class="linenos">381</span></a><span class="sd">        ----</span>
+</span><span id="JVal.fvalidate-382"><a href="#JVal.fvalidate-382"><span class="linenos">382</span></a><span class="sd">            - jpath: Absolute path to the JSON file.</span>
+</span><span id="JVal.fvalidate-383"><a href="#JVal.fvalidate-383"><span class="linenos">383</span></a><span class="sd">            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict</span>
+</span><span id="JVal.fvalidate-384"><a href="#JVal.fvalidate-384"><span class="linenos">384</span></a><span class="sd">                                                         objects describing the required</span>
+</span><span id="JVal.fvalidate-385"><a href="#JVal.fvalidate-385"><span class="linenos">385</span></a><span class="sd">                                                         parameters of a JSON object</span>
+</span><span id="JVal.fvalidate-386"><a href="#JVal.fvalidate-386"><span class="linenos">386</span></a><span class="sd">            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types</span>
+</span><span id="JVal.fvalidate-387"><a href="#JVal.fvalidate-387"><span class="linenos">387</span></a><span class="sd">                                                         &amp; names of each JSON parameter that</span>
+</span><span id="JVal.fvalidate-388"><a href="#JVal.fvalidate-388"><span class="linenos">388</span></a><span class="sd">                                                         may or may not be in the JSON object</span>
+</span><span id="JVal.fvalidate-389"><a href="#JVal.fvalidate-389"><span class="linenos">389</span></a>
+</span><span id="JVal.fvalidate-390"><a href="#JVal.fvalidate-390"><span class="linenos">390</span></a><span class="sd">        Returns</span>
+</span><span id="JVal.fvalidate-391"><a href="#JVal.fvalidate-391"><span class="linenos">391</span></a><span class="sd">        -------</span>
+</span><span id="JVal.fvalidate-392"><a href="#JVal.fvalidate-392"><span class="linenos">392</span></a><span class="sd">            - bool: True if the JSON file satisfies the schema, False otherwise.</span>
+</span><span id="JVal.fvalidate-393"><a href="#JVal.fvalidate-393"><span class="linenos">393</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="JVal.fvalidate-394"><a href="#JVal.fvalidate-394"><span class="linenos">394</span></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jpath</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jfile</span><span class="p">:</span>
+</span><span id="JVal.fvalidate-395"><a href="#JVal.fvalidate-395"><span class="linenos">395</span></a>            <span class="n">jobj</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">jfile</span><span class="p">)</span>
+</span><span id="JVal.fvalidate-396"><a href="#JVal.fvalidate-396"><span class="linenos">396</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">jobj</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="n">optional</span><span class="p">)</span>
 </span></pre></div>
 
 
