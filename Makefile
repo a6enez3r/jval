@@ -17,17 +17,14 @@ endif
 ifeq ($(dep_type),)
 dep_type := development
 endif
-ifeq ($(reruns),)
-reruns := 1
+ifeq ($(container_tag),)
+container_tag := ${dep_type}
 endif
 ifeq ($(durations),)
 durations := 10
 endif
 ifeq ($(pkg_type),)
 pkg_type := develop
-endif
-ifeq ($(container_tag),)
-container_tag := local
 endif
 
 .DEFAULT_GOAL := help
@@ -110,7 +107,7 @@ pull-remote:
 tag:
 	@git tag -d ${version} || : 
 	@git push --delete origin ${version} || : 
-	@git tag -a ${version} -m "latest" 
+	@git tag -a ${version} -m "latest version" 
 	@git push origin --tags
 
 ## -- python --
@@ -119,19 +116,20 @@ tag:
 pkg-build:
 	@echo "building..." && python3 setup.py build
 
-## install package
+## install package [pkg_type = editable | noneditable]
 pkg-install:
 	@echo "installing..." && python3 setup.py ${pkg_type}
 
 ## install package dependencies [dep_type = development | production]
 deps:
 	@python3 -m pip install --upgrade pip setuptools wheel
+	@python3 -m pip install .
 	@if [ -f requirements/${dep_type}.txt ]; then pip install -r requirements/${dep_type}.txt; fi
 
 ## run tests [pytest]
 test:
 	@echo "running tests..."
-	@python3 -m pytest --reruns=${reruns} --durations=${durations} --cov-report term-missing --cov=${mn} ${tn} ${pytest_opts}
+	@python3 -m pytest --durations=${durations} --cov-report term-missing --cov=${mn} ${tn} ${pytest_opts}
 
 ## -- code quality --
 
@@ -143,6 +141,10 @@ profile:
 ## run formatting [black]
 format:
 	@echo "formatting..."
+	@python3 -m isort ${mn}
+	@python3 -m isort ${tn}
+	@sort-requirements requirements/development.txt
+	@sort-requirements requirements/production.txt
 	@python3 -m black ${mn}
 	@python3 -m black ${tn}
 

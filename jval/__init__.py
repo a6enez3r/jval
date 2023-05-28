@@ -1,42 +1,33 @@
 """
-    ***
+Python package to validate JSON data against a schema.
 
-    python package to validate JSON data against a schema.
+A schema is a Python list containing dictionaries that describe each parameter/key in the JSON
+object, both expected and optional.
 
-    a **schema** is a python list containing dictionaries
-    describing each parameter / key in the JSON object (both
-    expected and optional)
+A schema can have a list of expected (must be in the JSON object) and optional keys (which may
+or may not be in the JSON object being validated).
 
-    ***
+A key is a Python dictionary that can be simple or nested and contains information about a
+parameter in the JSON object.
 
-    a **schema** can have a list of *expected* (must be in the
-    JSON object) and *optional* keys (which may or may not be
-    in the JSON object being validated)
+Expected keys: A list of keys, which are Python dict objects describing the required parameters
+of a JSON object.
 
-    a **key** is a python dictionary which can be simple or nested
-    and _contains information about a parameter in the JSON object
+They can be simple, nested, or conditional.
 
-    ***
-
-    **expected keys**: is a list of keys, which are python dict objects
-                        describing the required parameters of a JSON object.
-                        can be either `simple`, `nested`, or `conditional`
-
-        # simple
-        simple_key =
-        {
+    - Simple:
+        simple_key = {
             "param_name": "param_one",
             "param_type": str,
             "possible_values": ["val_one", "val_two"]
         }
-        simple_key =
-        {
+        simple_key = {
             "param_name": "source_type",
             "param_type": str
         }
-        # nested
-        nested_key =
-        {
+
+    - Nested:
+        nested_key = {
             "param_name": "store_info",
             "param_type": dict,
             "expected": [
@@ -47,35 +38,26 @@
                 {"param_name": "port", "param_type": int}
             ]
         }
-        # conditional
-        conditional_key =
-        {
+
+    - Conditional:
+        conditional_key = {
             "param_name": "source_info",
             "param_type": dict,
             "conditional": {
                 "depends_on": "source_type",
                 "dependence_info": {
-                    # value of depends_on
                     "local": {
-                        # expected keys based on that value
                         "expected": [
                             {"param_name": "file_path", "param_type": str}
                         ],
-                        # optional keys based on that value
                         "optional": [
                             {"param_name": "dir_path", "param_type": str},
                         ]
                     },
                     "azure_storage": {
                         "expected": [
-                            {
-                                "param_name": "connection_string",
-                                "param_type": str
-                            },
-                            {
-                                "param_name": "container_name",
-                                "param_type": str
-                            },
+                            {"param_name": "connection_string", "param_type": str},
+                            {"param_name": "container_name", "param_type": str}
                         ],
                         "optional": [
                             {"param_name": "file_name", "param_type": str}
@@ -85,39 +67,31 @@
             }
         }
 
-    ***
+Optional keys: A list of dicts describing the types and names of each JSON parameter that may
+or may not be in the JSON object. They are only checked for types.
 
-    **optional keys** : list of dicts describing the types & names
-                        of each JSON parameter that may or may not
-                        be in the JSON object (are only checked for types)
-            # optional
-            optional_key =
-            {
-                "param_name": "source_type",
-                "param_type": str
-            }
-    ***
+    - Optional:
+        optional_key = {
+            "param_name": "source_type",
+            "param_type": str
+        }
 
-    **methods**
+Methods:
 
-    ***
-
-    **validate**: validate a JSON object against a schema
-
-    **fvalidate**: validate a JSON file against a schema
-
-    ***
+    - validate: Validate a JSON object against a schema.
+    - fvalidate: Validate a JSON file against a schema.
 """
-import os
+
 import json
 import logging
+import os
 from logging.config import dictConfig
+from typing import Any, Dict, List, Optional
 
 from jval import _version
 from jval.common import LOGGING_DICT
 
 __version__ = _version.get_versions()["version"]
-
 
 dictConfig(LOGGING_DICT)
 logger = logging.getLogger(__name__)
@@ -125,22 +99,29 @@ logger = logging.getLogger(__name__)
 
 class JVal:
     """
-    check a given JSON object or file matches a schema
+    JSON validator class for checking if a given JSON object or file matches a schema.
     """
 
     def __init__(self):
-        """instantitate json validator"""
-
-    def _validate_expected(self, jobj, expected):
         """
-        recursively validate JSON object satisfies expected schema
+        Instantiate the JSON validator.
+        """
 
-        params:
-            - jobj: JSON object to validate
-            - expected: is a list of keys which are python dict objects
-                             describing the required parameters of a JSON object
-        returns
-            - is_valid: True or False
+    def _validate_expected(
+        self, jobj: Dict[str, Any], expected: Dict[str, Any]
+    ) -> bool:
+        """
+        Recursively validate whether a JSON object satisfies the expected schema.
+
+        Args
+        -----
+            - jobj (Dict[str, Any]): JSON object to validate.
+            - expected (Dict[str, Any]): A list of keys that are Python dict objects describing
+                                         the required parameters of a JSON object.
+
+        Returns
+        -------
+            - bool: True if the JSON object is valid according to the schema, False otherwise.
         """
         _contains_params = [
             parameter in jobj
@@ -222,17 +203,23 @@ class JVal:
                     )
         return True
 
-    def _validate_optional(self, jobj, optional):
+    def _validate_optional(
+        self, jobj: Dict[str, Any], optional: Dict[str, Any]
+    ) -> bool:
         """
-        recursively validate JSON object satisfies optional schema
+        Recursively validate whether a JSON object satisfies the optional schema.
 
-        params:
-            - jobj: JSON object being validated
-            - optional: list of dicts describing the types & names
-                             of each JSON parameter that may or may not
-                             be in the JSON object
-        returns
-            - is_valid: True or False
+        Args
+        ----
+            - jobj (Dict[str, Any]): JSON object to validate.
+            - optional (Dict[str, Any]): A list of dicts describing the types & names of each
+                                         JSON parameter that may or may not be in the JSON
+                                         object.
+
+        Returns
+        -------
+            - bool: True if the JSON object is valid according to the optional schema, False
+                    otherwise.
         """
         for optional_key in optional:
             # validate all optional keys in json object
@@ -261,17 +248,20 @@ class JVal:
                         )
         return True
 
-    def _contains_invalid(self, jobj, valid):
+    def _contains_invalid(self, jobj: Dict[str, Any], valid: List[str]) -> bool:
         """
-        check if all the keys in a JSON object are valid keys
+        Check if all the keys in a JSON object are valid keys.
 
-        valid keys are comprised of expected + optional
+        Valid keys are comprised of expected + optional.
 
-        params:
-            - jobj: JSON object being validated
-            - valid: name of allowed parameters
-        returns:
-            - bool True or False (if it _contains invalid param name)
+        Args
+        ----
+            - jobj (Dict[str, Any]): JSON object being validated.
+            - valid (List[str]): Name of allowed parameters.
+
+        Returns
+        -------
+            - bool: List of invalid parameter names found in the JSON object.
         """
         # check if any parameter present in JSON object is not in valid / matches
         # the schema
@@ -287,17 +277,26 @@ class JVal:
             return invalid
         return []
 
-    def _build_valid(self, expected=None, optional=None):
+    def _build_valid(
+        self,
+        expected: Optional[List[Dict[str, Any]]] = None,
+        optional: Optional[List[Dict[str, Any]]] = None,
+    ):
         """
-        build valid list of keys from expected + optional keys
+        Build a valid list of keys from expected and optional keys.
 
-        params:
-            - expected :- is a list of keys which are python dict objects
-                               describing the required parameters of a JSON object
+        Args
+        ----
+            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict
+                                                         objects describing the required
+                                                         parameters of a JSON object
+            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types
+                                                         & names of each JSON parameter that
+                                                         may or may not be in the JSON object
 
-            - optional :- list of dicts describing the types & names
-                              of each JSON parameter that may or may not
-                              be in the JSON object
+        Returns
+        -------
+            - bool: List of valid keys (combination of expected and optional keys).
         """
 
         if expected is not None:
@@ -322,30 +321,29 @@ class JVal:
                 valid = [optional_key["param_name"] for optional_key in optional]
         return valid
 
-    def validate(self, jobj, expected=None, optional=None):
+    def validate(
+        self,
+        jobj: Dict[str, Any],
+        expected: Optional[List[Dict[str, Any]]] = None,
+        optional: Optional[List[Dict[str, Any]]] = None,
+    ) -> bool:
         """
-        validate JSON object against a schema
+        Validate a JSON object against a schema.
 
-        ***
+        Parameters:
+            - jobj (Dict[str, Any]): JSON object to validate.
+            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict
+                                                         objects describing the required
+                                                         parameters of a JSON object
+            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types
+                                                         & names of each JSON parameter that
+                                                         may or may not be in the JSON object
 
-        **parameters**
-
-        ***
-
-        *expected*: list of keys which are python dict objects
-                    describing the required parameters of a JSON object
-
-        *optional*: list of dicts describing the types & names
-                    of each JSON parameter that may or may not
-                    be in the JSON object
-
-        *schema*: `expected` + `optional`
-        ***
+        Returns:
+            - bool: True if the JSON object satisfies the schema, False otherwise.
         """
-        print(expected)
         # get list of valid param names
         valid = self._build_valid(expected=expected, optional=optional)
-        print(valid)
         # if no param names -> no expected or optional found
         if len(valid) == 0:
             # log & return
@@ -367,29 +365,28 @@ class JVal:
             return self._validate_optional(jobj, optional)
         return True
 
-    def fvalidate(self, jpath, expected=None, optional=None):
+    def fvalidate(
+        self,
+        jpath: str,
+        expected: Optional[List[Dict[str, Any]]] = None,
+        optional: Optional[List[Dict[str, Any]]] = None,
+    ) -> bool:
         """
-        ***
+        Validate a JSON file against a schema.
 
-        validate JSON file against a schema
+        Args
+        ----
+            - jpath: Absolute path to the JSON file.
+            - expected (Optional[List[Dict[str, Any]]]): A list of keys which are python dict
+                                                         objects describing the required
+                                                         parameters of a JSON object
+            - optional (Optional[List[Dict[str, Any]]]): A list of dicts describing the types
+                                                         & names of each JSON parameter that
+                                                         may or may not be in the JSON object
 
-        ***
-
-        **parameters**
-
-        ***
-
-        *jpath*: absolute path to JSON file
-
-        *expected*: list of keys which are python dict objects
-                    describing the required parameters of a JSON object
-
-        *optional*: list of dicts describing the types & names
-                    of each JSON parameter that may or may not
-                    be in the JSON object
-
-        *schema*: `expected` + `optional`
-        ***
+        Returns
+        -------
+            - bool: True if the JSON file satisfies the schema, False otherwise.
         """
         with open(jpath, "rb") as jfile:
             jobj = json.loads(jfile)

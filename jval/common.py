@@ -1,15 +1,10 @@
 """
-    module-wide / shared constants
+Module-wide / shared constants.
 
-    ***
+Attributes
+----------
+    LOGGING_DICT (dict): Logging configuration dictionary.
 
-    attributes
-
-    ***
-
-    *LOGGING_CFG*: logging configuration dictionary
-
-    ***
 """
 LOGGING_DICT = {
     "version": 1,
